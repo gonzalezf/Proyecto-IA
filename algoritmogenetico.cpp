@@ -2,7 +2,39 @@ using namespace std;
 #include "algoritmogenetico.h"
 #define MAX_DOUBLE 1.79769e+308
 
-	vector<ruta> AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName){
+
+
+	
+
+
+	int AlgoritmoGenetico::EvaluarCapacidad(vector<nodoCLiente> solucion, int capacidad_vehiculo){
+		int cantidad_almacenada = 0;
+		int length_solucion  = solucion.size();
+		for(int i = 0; i<length_solucion;i++){
+			int cliente_actual = solucion.at(i).num_cliente;
+			pair<double,double> posicion_cliente_actual = solucion.at(i).posicion;
+			int demanda_cliente_actual = solucion.at(i).demanda;
+
+			if(cliente_actual == 0){
+				cantidad_almacenada = 0;
+			}
+			else{
+				cantidad_almacenada += demanda_cliente_actual;
+			}
+			if(cantidad_almacenada>capacidad_vehiculo){
+				return -1; //Se excedio capacidad, solucion no es factible!
+			}
+
+		}
+
+
+		return 0; // Es factible
+	}
+
+	vector<vector<pair<int,pair<double,double>>>> AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName){
+
+		//Leer archivo, obtener datos importantes como capacidad de vehiculo, tiempo de servicio, crear vector con todos los cliente sy sus posiciones
+		
 		int num_vehiculos;
 		int capacidad_vehiculos;
 		int tamano_max_ruta;
@@ -85,7 +117,7 @@ using namespace std;
 
 	//OBservacion: La distancia tiene la misma prioridad que el tiempo de servicio 
 
-	int EvaluarCalidad(vector<pair<int,pair<double,double>>> rutas, int tiempo_servicio, pair<double,double> posicionDeposito){
+	int AlgoritmoGenetico::EvaluarCalidad(vector<pair<int,pair<double,double>>> rutas, int tiempo_servicio, pair<double,double> posicionDeposito){
 		int costo = 0;
 		int rutas_length = rutas.size();
 
@@ -101,7 +133,7 @@ using namespace std;
 		return costo;
 	}
 
-	int EscribirMejorSolucion(vector<pair<int,pair<double,double>>> solucion,int costo){
+	int AlgoritmoGenetico::EscribirMejorSolucion(vector<pair<int,pair<double,double>>> solucion,int costo){
 		int solucion_length = solucion.size();
 
 		ofstream myfile;
@@ -128,7 +160,7 @@ using namespace std;
   		return 0;
 	}
 
-	pair<vector<pair<int,pair<double,double>>>,double> MejorSolucion(vector<vector<pair<int,pair<double,double>>>> poblacion, int tiempo_servicio, pair<double,double> posicionDeposito){
+	pair<vector<pair<int,pair<double,double>>>,double> AlgoritmoGenetico::EncontrarMejorSolucion(vector<vector<pair<int,pair<double,double>>>> poblacion, int tiempo_servicio, pair<double,double> posicionDeposito){
 		int size_poblacion = poblacion.size();
 		double costo_global = MAX_DOUBLE;
 		vector<pair<int,pair<double,double>> mejor_solucion_global;		
@@ -145,14 +177,14 @@ using namespace std;
 		return pair <mejor_solucion_global,costo_global>;
 	}
 
-	vector<pair<int,pair<double,double>>>> RellenarMitad(vector<pair<int,pair<double,double>>> nuevaSolucion, vector<pair<int,pair<double,double>>> solucionVieja, int start,int end){
+	vector<pair<int,pair<double,double>>>> AlgoritmoGenetico::RellenarMitad(vector<pair<int,pair<double,double>>> nuevaSolucion, vector<pair<int,pair<double,double>>> solucionVieja, int start,int end){
 	
 			for(int i = start; i<index+1;i++){
 				nuevaSolucion.push_back(solucionVieja.at(i));
 			}		
 		
 	}
-	int ContieneElemento(vector<pair<int,pair<double,double>>> solucion, int index, int cliente){
+	int AlgoritmoGenetico::ContieneElemento(vector<pair<int,pair<double,double>>> solucion, int index, int cliente){
 		int length_solucion = solucion.size();
 		for(int i = index; i<length_solucion){
 			if(get<0>solucion.at(i) == cliente){
@@ -164,7 +196,7 @@ using namespace std;
 
 
 
-	pair<vector<pair<int,pair<double,double>>>,vector<pair<int,pair<double,double>>>> Cruzamiento(vector<pair<int,pair<double,double>>> solucion1,vector<pair<int,pair<double,double>>> solucion2,int num_clientes){
+	pair<vector<pair<int,pair<double,double>>>,vector<pair<int,pair<double,double>>>> AlgoritmoGenetico::Cruzamiento(vector<pair<int,pair<double,double>>> solucion1,vector<pair<int,pair<double,double>>> solucion2,int num_clientes){
 		//Cada mitad desde el inicio al punto de corte se intercambian
 		//Los valores que se intercambian, si estan en la segunda mitad de donde llegan se eliminan de ahi
 		//Los valores que se intercambian, si no aparecen en la nueva solucion, uno x uno se colocan en el mejor ajuste
@@ -210,7 +242,7 @@ using namespace std;
 
 	}
 
-	vector<pair<int,pair<double,double>>> MejorCalce(vector<pair<int,pair<double,double>>> solucion, int cliente, pair<double,double> posicionCliente){
+	vector<pair<int,pair<double,double>>> AlgoritmoGenetico::MejorCalce(vector<pair<int,pair<double,double>>> solucion, int cliente, pair<double,double> posicionCliente){
 		int costo_global = MAX_DOUBLE;
 		int size_solucion = solucion.size();
 		pair<double,double> posicion_elemento_actual;
@@ -219,7 +251,18 @@ using namespace std;
 		for(int i = 0; i<size_solucion-1;i++){
 			posicion_elemento_actual = get<1>solucion.at(i);
 			posicion_elemento_siguiente = get<1> solucion.at(i+1);
-			int costo_actual = abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente)+abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente)));
+			
+			elemento_actual = get<0>solucion.at(i);
+			elemento_siguiente = get<0>solucion.at(i+1);
+
+			if(elemento_siguiente == 0){
+				int costo_actual = abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente))); //nO Necesita ser comparado con elemento siguiente
+
+			}
+			else{
+				int costo_actual = abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente)+abs(DistanciaEuclidiana(posicion_elemento_siguiente,posicionCliente)));
+			}
+
 			if(costo_actual<costo_global){
 				index = i; //Agregar despues de ese index
 			}
@@ -241,7 +284,8 @@ using namespace std;
 		}
 		return nuevaSolucion;
 	}
-	vector<pair<int,pair<double,double>>> RevisionGramatica(vector<pair<int,pair<double,double>>> solucion){
+
+	vector<pair<int,pair<double,double>>> AlgoritmoGenetico::RevisionGramatica(vector<pair<int,pair<double,double>>> solucion){
 		int size_solucion = solucion.size();
 		for(int i = 0; i<size_solucion-1;i++){
 			elemento_actual = get<0>solucion.at(i);
