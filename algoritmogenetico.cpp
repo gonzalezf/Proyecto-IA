@@ -7,7 +7,7 @@ using namespace std;
 	
 
 
-	int AlgoritmoGenetico::EvaluarCapacidad(vector<nodoCLiente> solucion, int capacidad_vehiculo){
+	int AlgoritmoGenetico::EvaluarCapacidad(vector<nodoCliente> solucion, int capacidad_vehiculo){
 		int cantidad_almacenada = 0;
 		int length_solucion  = solucion.size();
 		for(int i = 0; i<length_solucion;i++){
@@ -31,53 +31,114 @@ using namespace std;
 		return 0; // Es factible
 	}
 
-	vector<vector<pair<int,pair<double,double>>>> AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName){
+	vector<vector<nodoCliente>> AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName){
 
 		//Leer archivo, obtener datos importantes como capacidad de vehiculo, tiempo de servicio, crear vector con todos los cliente sy sus posiciones
-		
-		int num_vehiculos;
+
+		int num_clientes;
 		int capacidad_vehiculos;
-		int tamano_max_ruta;
+		int tiempo_max_ruta;
 		int tiempo_servicio;
-		double deposito_x; //coordenada x del deposito
-		double deposito_y; //coordenada y del deposito
-		int num_vehiculo_actual;
-		int vehiculo_actual_x;
-		int vehiculo_actual_y;
+		pair<double,double> posicionDeposito;
+		 //coordenada y del deposito
+		int num_cliente_actual;
+		pair<double,double> posicion_cliente_actual;
+		int demanda_cliente_actual;
+		int idCLiente = 1;
 
 
-		vector<ruta> conjuntoRutas;
-		cout <<"Imprimiendo desde algoritmo genetico"<<endl;
-
+		vector<nodoCliente> clientesInstancia;
 		string line;
   		ifstream myfile (fileName.c_str());
 		if (myfile)  // same as: if (myfile.good())
 		{
 			int num_linea = 0;
 			while (getline( myfile, line ))  // same as: while (getline( myfile, line ).good())
-      			istringstream iss(line);
       			{
+      			istringstream iss(line); //ver si esto funciona
       			if(num_linea == 0){
-      				iss >> num_vehiculos >> capacidad_vehiculos >> tamano_max_ruta >> tiempo_servicio; //parsear primera linea
+      				iss >> num_clientes >> capacidad_vehiculos >> tiempo_max_ruta >> tiempo_servicio; //parsear primera linea
 
       			}
       			if(num_linea == 1){
-      				iss >> deposito_x >> deposito_y;
+      				iss >> posicionDeposito.first >> posicionDeposito.second;
       			}
       			else{
+      				// parseamos y obtenemos el elemento cliente (su numero y su posicion)
 
-
+      				iss >> posicion_cliente_actual.first >> posicion_cliente_actual.second >> demanda_cliente_actual; // se obtiene elemento
+      				//Una vez parseado llevar estos elementos a un struct
+      				nodoCliente = {idCLiente,posicion_cliente_actual,demanda_cliente_actual};
+      				clientesInstancia.push_back(nodoCliente); //insertar elemento dentro de ese vector
+      				idCLiente++;
       			}
 		      	num_linea++;
-
 		      	}
-	    myfile.close();
+
+		    myfile.close();
+	    	//Hasta este punto, se obtiene un vector con todos los nodos que representan a los distintos clientes (no esta el nodo deposito)
+	    	//La idea es realizar combinaciones aleatorias de ese conjunto, e ir insertando posteriormente el conjunto deposito en la ruta segun las condiciones
+	    	//del problema, es decir tiempo de servicio y capacidad del vehiculo. Una vez eso agregarlo a un vector que almacenará el conjunto de rutas total
+
+		    nodoCliente nodoDeposito = {0, posicionDeposito,0}; //el id del deposito y su demanda es 0
+		    for(int i = 0; i < tamano_poblacion; i++){ // Aqui se generara una solucion individual factible que será parte de la población.
+			     //Crear orden aleatorio
+
+		   		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+			 	shuffle (clientesInstancia.begin(), clientesInstancia.end(), std::default_random_engine(seed)); //se modifica orden del vector
+
+				vector<nodoCliente> solucion_individual_terminada = CrearRutasFactibles(clientesInstancia,nodoDeposito,capacidad_vehiculos,tiempo_max_ruta,tiempo_servicio) 	
+				conjuntoRutas.push_back(solucion_individual_terminada); //agregar a nuestra poblacion esta solucion factible
+		    }
+
     	}
-    	else cout << "Imposible leer archivo" <<endl<<endl;
-
-    	return conjuntoRutas;
-
+    	else{
+    		cout << "Imposible leer archivo" <<endl<<endl;
+    	} 
+   		return conjuntoRutas;
 	}
+
+	vector<nodoCliente> AlgoritmoGenetico::CrearRutasFactibles(vector<nodoCliente> clientesInstancia,nodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio){
+		//Se debe considerar tanto la capacidad max del vehiculo, como el tiempo max de ruta.
+		int cantidad_almacenada_actual = 0;
+		int tiempo_ruta_actual = 0;
+
+		int length_clientesInstancia = clientesInstancia.size();
+		vector<nodoCliente> solucion_individual_terminada;
+		solucion_individual_terminada.push_back(nodoDeposito); //primer elemento
+
+
+		for(int i =0; i<length_clientesInstancia;i++{
+			//Ir colocando el deposito donde corresponda. 
+			nodoCliente ClienteActual = clientesInstancia.at(i);
+			nodoCliente lastNode = solucion_individual_terminada.back();
+
+			int demanda_cliente_actual = ClienteActual.demanda;
+			
+			int tmp_cantidad_almacenada = cantidad_almacenada_actual + demanda_cliente_actual;
+			int tmp_tiempo_ruta_actual = tiempo_servicio + abs(DistanciaEuclidiana(ClienteActual,lastNode)) + tiempo_ruta_actual;
+
+			if(tmp_cantidad_almacenada > capacidad_vehiculos || tmp_tiempo_ruta_actual > tiempo_max_ruta){
+				//No ingresar a la ruta, colocar un 0 antes de ingresarlo.
+				solucion_individual_terminada.push_back(nodoDeposito);
+				solucion_individual_terminada.push_back(ClienteActual);
+
+				tiempo_ruta_actual = abs(DistanciaEuclidiana(nodoDeposito,ClienteActual))+tiempo_servicio;
+				cantidad_almacenada_actual = demanda_cliente_actual;
+			}
+			else{
+				solucion_individual_terminada.push_back(ClienteActual);
+				cantidad_almacenada_actual = tmp_cantidad_almacenada;
+				tiempo_ruta_actual = tmp_tiempo_ruta_actual;
+		
+			}
+		}
+
+		return solucion_individual_terminada; //Deberia tener los '0' donde corresponde
+	} 	
+
+
+
 
 	//Hay que evaluar y ver si las condiciones se siguen cumpliendo al hacer esta mutacion
 	//Las rutas seran de la forma 0 (pos 0) 15 (pos x,y) 14 (pos x,y) 0 2 4 0 15 17 0 1 3 

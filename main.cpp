@@ -67,7 +67,7 @@ int main(int argc, char **argv){
 
   //INICIALIZAR POBLACION
 
-  ruta PoblacionInicial[TAMANO_POBLACION] = AG.InicializarPoblacion(TAMANO_POBLACION,path);
+   vector<vector<nodoCliente>> poblacionInicial  = AG.InicializarPoblacion(TAMANO_POBLACION,path); // Se obtiene población con la cual trabajar
 
 
   return 0;

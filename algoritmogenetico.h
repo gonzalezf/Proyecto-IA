@@ -9,16 +9,13 @@ using namespace std;
 class AlgoritmoGenetico{
 	
 	public:
-	
-
-
 	struct nodoCliente{
-		int num_cliente;
+		int idCliente;
 		pair<double,double> posicion;
 		int demanda;
-	}	
-
-	vector<ruta> InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
+	}
+	vector<vector<nodoCliente>> InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
+	vector<nodoCLiente> CrearRutasFactibles(clientesInstancia,nodoDeposito,capacidad_vehiculos,tiempo_max_ruta,tiempo_servicio); //Crea una ruta factible, coloca el deposito donde corresponda segun las condiciones de tiempo max servicio ,etc	
 
 
 	//OPERADORES
