@@ -11,9 +11,6 @@ bool Helper::ArchivoExiste(const std::string& name){
     return f.good();
 }
 
-double Helper::DistanciaEuclidiana(pair<double,double> p1, pair<double,double> p2){
-  return sqrt(pow(p2.first-p1.first,2)+pow(p2.second-p1.second,2));
-}
 
 void Helper::LeerInstancia(const std::string& fileName){
   string line;

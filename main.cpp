@@ -1,7 +1,8 @@
 using namespace std;
 #include "algoritmogenetico.h"
+#include "nodocliente.h"
 /* Para compilar
-g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp
+g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 ./a.out vrpnc1
 */
 
@@ -16,7 +17,7 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp
 
 #define PMUTATION 0.15 //porcentaje mutacion
 #define PXOVER 0.8 //Porcentaje crossover
-#define TAMANO_POBLACION 50 // cantidad de soluciones 
+ // cantidad de soluciones 
 
 //Cada genotipo es un miembro de la población con
 // gene: rutas 
@@ -28,6 +29,9 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp
 
 
 int main(int argc, char **argv){
+
+  int  TAMANO_POBLACION = 50;
+
   cout << "Algoritmo Genetico con 2 operadores para Open Vehicle Routing Problem" << endl;
   cout << "Felipe González  P." << endl << endl;
 
@@ -43,6 +47,8 @@ int main(int argc, char **argv){
   //Definición de clases
   Helper helper;
   AlgoritmoGenetico AG;
+  NodoCliente N;
+  
 
   stringstream p;
   string path = "";
@@ -67,7 +73,7 @@ int main(int argc, char **argv){
 
   //INICIALIZAR POBLACION
 
-   vector<vector<nodoCliente>> poblacionInicial  = AG.InicializarPoblacion(TAMANO_POBLACION,path); // Se obtiene población con la cual trabajar
+  vector<vector<NodoCliente> > poblacionInicial  = AG.InicializarPoblacion(50,path); // Se obtiene población con la cual trabajar
 
 
   return 0;
