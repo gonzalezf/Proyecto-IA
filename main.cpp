@@ -30,8 +30,6 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 
 int main(int argc, char **argv){
 
-  int  TAMANO_POBLACION = 50;
-
   cout << "Algoritmo Genetico con 2 operadores para Open Vehicle Routing Problem" << endl;
   cout << "Felipe González  P." << endl << endl;
 

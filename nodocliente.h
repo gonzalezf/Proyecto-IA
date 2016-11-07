@@ -1,3 +1,6 @@
+#ifndef _INCLUDE_NODO_CLIENTE_H_
+#define _INCLUDE_NODO_CLIENTE_H_
+
 using namespace std;
 
 
@@ -22,4 +25,6 @@ class NodoCliente{
 
 
 };
+
+#endif //_INCLUDE_NODO_CLIENTE_H_
 

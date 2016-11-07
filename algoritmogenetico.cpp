@@ -54,7 +54,7 @@ using namespace std;
 		vector<vector<NodoCliente> > conjuntoRutas;
 
 
-		vector<NodoCliente> clientesInstancia();
+		vector<NodoCliente> clientesInstancia;
 		string line;
   		ifstream myfile (fileName.c_str());
 		if (myfile)  // same as: if (myfile.good())
@@ -75,7 +75,9 @@ using namespace std;
 
       				iss >> posicion_cliente_actual.first >> posicion_cliente_actual.second >> demanda_cliente_actual; // se obtiene elemento
       				//Una vez parseado llevar estos elementos a un struct
-      				NodoCliente nodoActual(idCLiente,posicion_cliente_actual.first,posicion_cliente_actual.second,demanda_cliente_actual);
+      				//
+      				NodoCliente nodoActual = NodoCliente(idCLiente,posicion_cliente_actual.first,posicion_cliente_actual.second,demanda_cliente_actual);
+
       				clientesInstancia.push_back(nodoActual); //insertar elemento dentro de ese vector
       				idCLiente++;
       			}

@@ -4,13 +4,15 @@ using namespace std;
 #include <iostream>     // std::cout
 #include <algorithm>    // std::shuffle
 //mutuacion no deberia tener problemas
+//
+#include "nodocliente.h"
 
 class AlgoritmoGenetico{
 	
 	public:
 
 	//INICIALIZAR POBLACION
-	vector<vector<nodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
+	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
 	//vector<nodoCliente> CrearRutasFactibles(vector<nodoCliente> clientesInstancia,nodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio);
 
 	//OTROS
