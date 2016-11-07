@@ -1,3 +1,6 @@
+#ifndef _INCLUDE_HELPER_H_
+#define _INCLUDE_HELPER_H_
+
 using namespace std;
 #include <iostream> 
 #include <fstream>
@@ -17,3 +20,5 @@ class Helper {
 
 
 };
+
+#endif

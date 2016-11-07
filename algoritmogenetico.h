@@ -1,3 +1,5 @@
+#ifndef _INCLUDE_ALGORITMO_GENETICO_H_
+#define _INCLUDE_ALGORITMO_GENETICO_H_
 using namespace std; 
 #include "helper.h"
 #include <vector>
@@ -13,10 +15,16 @@ class AlgoritmoGenetico{
 
 	//INICIALIZAR POBLACION
 	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
-	//vector<nodoCliente> CrearRutasFactibles(vector<nodoCliente> clientesInstancia,nodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio);
+	vector<NodoCliente> CrearRutasFactibles(vector<NodoCliente> clientesInstancia,NodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio);
 
 	//OTROS
-    double DistanciaEuclidiana(pair<double,double> p1, pair<double,double> p2);
+    double DistanciaEuclidiana(double p1x,double p1y, double p2x,double p2y);
+    void LeerSolucion(vector<NodoCliente> solucion);
+    void LeerPoblacion(vector<vector<NodoCliente> > poblacion);
+	vector<NodoCliente> EncontrarMejorSolucion(vector<vector<NodoCliente> >  poblacion, int tiempo_servicio);
+	double EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio);
+    void SetCostoSolucion(vector<NodoCliente> solucion, double costo); //dado un costo asigna la deposito, demanda = costo.
+    double CostoSolucion(vector<NodoCliente> solucion); // retorna el costo de la solucion
 
 	
 /*
@@ -33,3 +41,4 @@ class AlgoritmoGenetico{
 */
 
 };
+#endif 

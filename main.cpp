@@ -17,6 +17,7 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 
 #define PMUTATION 0.15 //porcentaje mutacion
 #define PXOVER 0.8 //Porcentaje crossover
+#define TAMANO_POBLACION 50
  // cantidad de soluciones 
 
 //Cada genotipo es un miembro de la población con
@@ -29,6 +30,7 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 
 
 int main(int argc, char **argv){
+
 
   cout << "Algoritmo Genetico con 2 operadores para Open Vehicle Routing Problem" << endl;
   cout << "Felipe González  P." << endl << endl;
@@ -45,7 +47,7 @@ int main(int argc, char **argv){
   //Definición de clases
   Helper helper;
   AlgoritmoGenetico AG;
-  NodoCliente N;
+  NodoCliente N; // LA DECLARO Y FUNCIONA, EN EL MAIN NO HAY PROBLEMA.
   
 
   stringstream p;
@@ -66,12 +68,13 @@ int main(int argc, char **argv){
   else{
     cout << "Instacia" << argv[1] << " Existe" << endl;
     cout << "Archivo es leidos desde " << path <<endl<<endl;
-    helper.LeerInstancia(path);
+    //helper.LeerInstancia(path);
   }
 
   //INICIALIZAR POBLACION
 
-  vector<vector<NodoCliente> > poblacionInicial  = AG.InicializarPoblacion(50,path); // Se obtiene población con la cual trabajar
+  vector<vector<NodoCliente> > poblacionInicial  = AG.InicializarPoblacion(TAMANO_POBLACION,path); // Se obtiene población con la cual trabajar
+  //AG.LeerPoblacion(poblacionInicial);
 
 
   return 0;

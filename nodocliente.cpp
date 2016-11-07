@@ -2,11 +2,12 @@ using namespace std;
 #include "nodocliente.h"
 
 
+//ESTA ES MI CLASE
 	NodoCliente::NodoCliente(){
-		idCliente = -1;
-		posicionx = -1;
-		posiciony = -1;
-		demanda = -1;
+		idCliente = 0;
+		posicionx = 0;
+		posiciony = 0;
+		demanda = 0;
 	}
 	NodoCliente::NodoCliente(int id, double x, double y, int d){
 		idCliente = id;
