@@ -2,7 +2,7 @@ using namespace std;
 #include "algoritmogenetico.h"
 #include "nodocliente.h"
 
-#define MAX_DOUBLE 1.79769e+300
+#define MAX_DOUBLE 1.7976931348623158e+308 /* max value */
 
 
 //CREAR FUNCION QUE TOMA LA POBLACION Y ELIGE LAS MEJORES, PARA LUEGO CREAR CRUZAMIENTOS Y MUTACIONES
@@ -11,30 +11,8 @@ using namespace std;
 
 
 
-	double AlgoritmoGenetico::EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio){
-		int length_solucion = solucion.size();
-		double tiempo_total = 0;
-		for(int i = 0; i<length_solucion-1;i++){
-			NodoCliente cliente_actual = solucion.at(i);
-			NodoCliente cliente_siguiente = solucion.at(i+1);
+	//OTROS - SET DE HERRAMIENTAS
 
-			double x_actual = cliente_actual.getCoordenadaX();
-			double y_actual = cliente_actual.getCoordenadaY();
-
-			double x_siguiente = cliente_siguiente.getCoordenadaX();
-			double y_siguiente = cliente_siguiente.getCoordenadaY();
-
-			if(cliente_actual.getId()!=0){
-				tiempo_total += tiempo_servicio; //se visita un cliente, de lo contrario es un deposito el q se lee
-			}
-			if(cliente_siguiente.getId()!=0){
-				tiempo_total += DistanciaEuclidiana(x_actual,y_actual,x_siguiente,y_siguiente);
-			}
-		}
-		//Agregar el costo de la visita del ultimo nodo
-		tiempo_total+= tiempo_servicio;
-		return tiempo_total;
-	}		
 	double AlgoritmoGenetico::DistanciaEuclidiana(double p1x,double p1y, double p2x, double p2y){
 	  return sqrt(pow(p2x-p1x,2)+pow(p2y-p1y,2));
 	}
@@ -57,74 +35,40 @@ using namespace std;
     }
 
     double AlgoritmoGenetico::CostoSolucion(vector<NodoCliente> solucion){
+
+    	//cout << "ID NODE = "<<firstNode.getCoordenadaX()<< " demanda = "<<firstNode.getDemanda()<<endl;
+
+    	//cout << "Costo Solucion = "<<solucion.at(0).getDemanda()<<endl;
     	return solucion.at(0).getDemanda(); // en la demanda del primer deposito se ecuenntra el costo total de la solucion
     }
 
-    void AlgoritmoGenetico::SetCostoSolucion(vector<NodoCliente> solucion, double costo){
-    	NodoCliente firstNode = solucion.at(0);
+    void  AlgoritmoGenetico::SetCostoSolucion(vector<NodoCliente>  solucion, double costo){ ///AQUI ESTA EL ERROR PERO AL PARECER SI FUNCIONA!
+
+
+	    	NodoCliente firstNode = solucion.at(0);
     	firstNode.setDemanda(costo); //
-    	cout <<"Costo actualizado = "<<costo<<endl;
+    	//cout << "ID = "<<firstNode.getId()<<" x = "<<firstNode.getCoordenadaX()<<" demnada ="<<firstNode.getDemanda()<<endl;
+    	//cout <<"Costo ==  "<<costo<<" Aparece"<<firstNode.getDemanda()<<endl; // si funciona
 
     }
 
-	vector<NodoCliente> AlgoritmoGenetico::CrearRutasFactibles(vector<NodoCliente> clientesInstancia,NodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio){
-		//Se debe considerar tanto la capacidad max del vehiculo, como el tiempo max de ruta.
-		int cantidad_almacenada_actual = 0;
-		double tiempo_ruta_actual = 0.0;
+    double AlgoritmoGenetico::CostoPoblacion(vector<vector<NodoCliente> > poblacion){
+    	int length_poblacion = poblacion.size();
+    	double costo_poblacion = 0.0;
+    	for(int i = 0; i<length_poblacion;i++){
 
-		int length_clientesInstancia = clientesInstancia.size();
-		vector<NodoCliente> solucion_individual_terminada;
-		solucion_individual_terminada.push_back(nodoDeposito); //primer elemento
-
-		double coordenadaXDeposito = nodoDeposito.getCoordenadaX();
-		double coordenadaYDeposito = nodoDeposito.getCoordenadaY();
-
-		//int k=0;
-		for(int i =0; i<length_clientesInstancia;i++){
-			//Ir colocando el deposito donde corresponda. 
-			NodoCliente ClienteActual = clientesInstancia.at(i);
-			double coordenadaXActual =  ClienteActual.getCoordenadaX();
-			double coordenadaYActual = ClienteActual.getCoordenadaY();
-			/*if(k == 0){
-				cout << "PRIMER ELEMENTO " << coordenadaXActual << coordenadaYActual <<endl<<endl;
-				k=1;
-			}*/
-			NodoCliente lastNode = solucion_individual_terminada.back();
-			double coordenadaXPasada = lastNode.getCoordenadaX();
-			double coordenadaYPasada = lastNode.getCoordenadaY();
-
-			int demanda_cliente_actual = ClienteActual.getDemanda();
-			
-			int tmp_cantidad_almacenada = cantidad_almacenada_actual + demanda_cliente_actual;
-			double tmp_tiempo_ruta_actual = tiempo_servicio + DistanciaEuclidiana(coordenadaXPasada,coordenadaYPasada,coordenadaXActual,coordenadaYActual) + tiempo_ruta_actual;
-
-			if(tmp_cantidad_almacenada > capacidad_vehiculos || tmp_tiempo_ruta_actual > tiempo_max_ruta){
-				//No ingresar a la ruta, colocar un 0 antes de ingresarlo.
-				cout << "Se Inicia Nueva Ruta en la Solucion" <<endl;
-				solucion_individual_terminada.push_back(nodoDeposito);
-				solucion_individual_terminada.push_back(ClienteActual);
-
-				tiempo_ruta_actual = DistanciaEuclidiana(coordenadaXDeposito,coordenadaYDeposito,coordenadaXActual,coordenadaYActual)+tiempo_servicio;
-				cantidad_almacenada_actual = demanda_cliente_actual;
-
-			}
-			else{
-				solucion_individual_terminada.push_back(ClienteActual);
-				cantidad_almacenada_actual = tmp_cantidad_almacenada;
-				tiempo_ruta_actual = tmp_tiempo_ruta_actual;
-		
-			}
-		}
-
-		return solucion_individual_terminada; //Deberia tener los '0' donde corresponde
-	} 	
+    		costo_poblacion += CostoSolucion(poblacion.at(i));
+    		//cout << "sumatoria = "<<costo_poblacion<<" i = "<<i<<endl ;
+       	}
+    	return costo_poblacion;
+    }
 
 
-
+	//INICIALIZAR POBLACION
 
 	vector<vector<NodoCliente> > AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName){
 
-		cout << "Ejecutando InicializarPoblacion"<<endl;
+		//cout << "Ejecutando InicializarPoblacion"<<endl;
 		//Leer archivo, obtener datos importantes como capacidad de vehiculo, tiempo de servicio, crear vector con todos los cliente sy sus posiciones
 
 		int num_clientes;
@@ -187,9 +131,20 @@ using namespace std;
 		   		//unsigned seed = chrono::system_clock::now().time_since_epoch().count();
 			 	random_shuffle (clientesInstancia.begin(), clientesInstancia.end()); //se modifica orden del vector
 			 	//LeerSolucion(clientesInstancia);
-				vector<NodoCliente> solucion_individual_terminada = CrearRutasFactibles(clientesInstancia,nodoDeposito,capacidad_vehiculos,tiempo_max_ruta,tiempo_servicio); 	
+				vector<NodoCliente>  solucion_individual_terminada = CrearRutasFactibles(clientesInstancia,nodoDeposito,capacidad_vehiculos,tiempo_max_ruta,tiempo_servicio); 	
 				double costo_solucion_actual = EvaluarCalidad(solucion_individual_terminada,tiempo_servicio);
-				SetCostoSolucion(solucion_individual_terminada,costo_solucion_actual);
+				SetCostoSolucion(solucion_individual_terminada,costo_solucion_actual); // está cambiando a la copia
+
+
+				NodoCliente & firstNode = solucion_individual_terminada.at(0); //nunca olvidar el puntero!!
+				firstNode.setDemanda(costo_solucion_actual);
+
+				//cout<<"TAMANO_POBLACION = "<<tamano_poblacion<<" I = "<<i<<endl;
+				//cout<<"INICIALIZAR - SET COSTO = "<<costo_solucion_actual<<endl; si funciona
+
+				//cout << "costo solucion antes de entrar a pob "<<solucion_individual_terminada.at(0).getDemanda()<<endl; // aqui falla
+
+
 				conjuntoRutas.push_back(solucion_individual_terminada); //agregar a nuestra poblacion esta solucion factible
 		    }
 
@@ -197,52 +152,258 @@ using namespace std;
     	else{
     		cout << "Imposible leer archivo" <<endl<<endl;
     	} 
-		cout << "Finalizó InicializarPoblacion "<<endl;
-
+		//cout << "Finalizó InicializarPoblacion "<<endl;
+    	cout<<"FIN InicializarPoblacion"<<endl;
    		return conjuntoRutas;
 	}
+
+	vector<NodoCliente> AlgoritmoGenetico::CrearRutasFactibles(vector<NodoCliente> clientesInstancia,NodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio){
+		//Se debe considerar tanto la capacidad max del vehiculo, como el tiempo max de ruta.
+		int cantidad_almacenada_actual = 0;
+		double tiempo_ruta_actual = 0.0;
+
+		int length_clientesInstancia = clientesInstancia.size();
+		vector<NodoCliente> solucion_individual_terminada;
+		solucion_individual_terminada.push_back(nodoDeposito); //primer elemento
+
+		double coordenadaXDeposito = nodoDeposito.getCoordenadaX();
+		double coordenadaYDeposito = nodoDeposito.getCoordenadaY();
+
+		//int k=0;
+		for(int i =0; i<length_clientesInstancia;i++){
+			//Ir colocando el deposito donde corresponda. 
+			NodoCliente ClienteActual = clientesInstancia.at(i);
+			double coordenadaXActual =  ClienteActual.getCoordenadaX();
+			double coordenadaYActual = ClienteActual.getCoordenadaY();
+			/*if(k == 0){
+				cout << "PRIMER ELEMENTO " << coordenadaXActual << coordenadaYActual <<endl<<endl;
+				k=1;
+			}*/
+			NodoCliente lastNode = solucion_individual_terminada.back();
+			double coordenadaXPasada = lastNode.getCoordenadaX();
+			double coordenadaYPasada = lastNode.getCoordenadaY();
+
+			int demanda_cliente_actual = ClienteActual.getDemanda();
+			
+			int tmp_cantidad_almacenada = cantidad_almacenada_actual + demanda_cliente_actual;
+			double tmp_tiempo_ruta_actual = tiempo_servicio + DistanciaEuclidiana(coordenadaXPasada,coordenadaYPasada,coordenadaXActual,coordenadaYActual) + tiempo_ruta_actual;
+
+			if(tmp_cantidad_almacenada > capacidad_vehiculos || tmp_tiempo_ruta_actual > tiempo_max_ruta){
+				//No ingresar a la ruta, colocar un 0 antes de ingresarlo.
+				//cout << "Se Inicia Nueva Ruta en la Solucion" <<endl;
+				solucion_individual_terminada.push_back(nodoDeposito);
+				solucion_individual_terminada.push_back(ClienteActual);
+
+				tiempo_ruta_actual = DistanciaEuclidiana(coordenadaXDeposito,coordenadaYDeposito,coordenadaXActual,coordenadaYActual)+tiempo_servicio;
+				cantidad_almacenada_actual = demanda_cliente_actual;
+
+			}
+			else{
+				solucion_individual_terminada.push_back(ClienteActual);
+				cantidad_almacenada_actual = tmp_cantidad_almacenada;
+				tiempo_ruta_actual = tmp_tiempo_ruta_actual;
+		
+			}
+		}
+
+		return solucion_individual_terminada; //Deberia tener los '0' donde corresponde
+	} 	
+
+	/*
+	///////////////////////////////////////////////////////////////////
+	//\\\\\\\\\\\\\\\\\\\\\ETILISMO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	///////////////////////////////////////////////////////////////////
+	*/
+	//devuelve el indice de donde esta la peor solucion
+	int AlgoritmoGenetico::ObtenerPeorSolucion(vector<vector<NodoCliente> > poblacion){
+		int costo_global = 0;
+		int length_poblacion = poblacion.size();
+		int index = -1; // error
+		for(int i = 0; i<length_poblacion;i++){
+			vector<NodoCliente> solucion_actual = poblacion.at(0);
+			NodoCliente nodo_actual = solucion_actual.at(0);
+			int costo_actual = nodo_actual.getDemanda();
+
+			if(costo_actual > costo_global){
+				index = i;
+				costo_global = costo_actual; //update
+			}
+		}
+		return index;
+	}
+
+	//DETERMINA LAS K Mejores soluciones de una población, luego las devuelve. 
+	vector<vector<NodoCliente> > AlgoritmoGenetico::ObtenerMejoresSoluciones(vector<vector<NodoCliente> > poblacion, int k){
+		int length_poblacion = poblacion.size();
+		vector<vector<NodoCliente> > resultado;
+		int cantidad_almacenada = 0;
+		double costo_minimo_actual = MAX_DOUBLE;
+		int index = -1; 
+		for(int i = 0; i<length_poblacion;i++){
+			vector<NodoCliente> solucion_actual = poblacion.at(i);
+			NodoCliente deposito_actual = solucion_actual.at(0); // en la demanda de este elemento esta almacenado el costo
+			int costo_actual = deposito_actual.getDemanda();
+			if(costo_actual<costo_minimo_actual){
+				if(cantidad_almacenada<k+1){ //revisar si efectivamente devuelve las k mejores.
+					//Hay espacio para almacenar esta solución sin problemas.
+					resultado.push_back(solucion_actual);
+				}
+				else{
+					//Ingresar a la solución pero borrar la de mayor costo.
+					//Ordenar de menor a mayor costo, eliminar la peor, agregar la actual
+
+					index = ObtenerPeorSolucion(resultado);
+					resultado[index] = solucion_actual; //update
+
+				}
+				costo_minimo_actual = costo_actual;
+				cantidad_almacenada++;
+			}
+		}
+		return resultado;
+	}
+
+	//Esta funcion es más costosa, revisa la calidad de la solucion entera, no la demnada del primer elemento.
+	vector<NodoCliente> AlgoritmoGenetico::EncontrarMejorSolucion(vector<vector<NodoCliente> > poblacion, int tiempo_servicio){
+		int size_poblacion = poblacion.size();
+		double costo_global = MAX_DOUBLE;
+		vector<NodoCliente> mejor_solucion_global;		
+		vector<NodoCliente> solucion_actual;
+
+		for(int i = 0;i < size_poblacion;i++){
+			solucion_actual = poblacion.at(i);
+			double costo_actual = EvaluarCalidad(solucion_actual,tiempo_servicio);
+
+			if(costo_actual<costo_global){
+				mejor_solucion_global = solucion_actual;
+				costo_global = costo_actual;
+			}
+		}
+		return mejor_solucion_global;
+	}
+
+	//DETERMINA EL COSTO DE LA SOLUCION, este valor luego es seteado en la demanda del deposito para acceder mas rapido.	
+		double AlgoritmoGenetico::EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio){
+		int length_solucion = solucion.size();
+		double tiempo_total = 0;
+		for(int i = 0; i<length_solucion-1;i++){
+			NodoCliente cliente_actual = solucion.at(i);
+			NodoCliente cliente_siguiente = solucion.at(i+1);
+
+			double x_actual = cliente_actual.getCoordenadaX();
+			double y_actual = cliente_actual.getCoordenadaY();
+
+			double x_siguiente = cliente_siguiente.getCoordenadaX();
+			double y_siguiente = cliente_siguiente.getCoordenadaY();
+
+			if(cliente_actual.getId()!=0){
+				tiempo_total += tiempo_servicio; //se visita un cliente, de lo contrario es un deposito el q se lee
+			}
+			if(cliente_siguiente.getId()!=0){
+				tiempo_total += DistanciaEuclidiana(x_actual,y_actual,x_siguiente,y_siguiente);
+			}
+		}
+		//Agregar el costo de la visita del ultimo nodo
+		tiempo_total+= tiempo_servicio;
+		return tiempo_total;
+	}	
+
+	vector<NodoCliente> AlgoritmoGenetico::ObtenerSolucionPorRuleta(vector<vector<NodoCliente> > poblacion,double costo_poblacion){
+		vector<NodoCliente> resultado; 
+		double limite_inferior = 0.0;
+		double limite_superior = 0.0;
+		int length_poblacion = poblacion.size();
+		//Crear número aleatorio
+	    srand(time(NULL));
+
+        double random_number =  (rand() % (101))/100.0;
+
+		for(int i = 0; i<length_poblacion;i++){
+			vector<NodoCliente> solucion_actual = poblacion.at(i);
+			NodoCliente nodo_actual = solucion_actual.at(0);
+			double costo_actual = nodo_actual.getDemanda();
+			//cout << "Costo actual = "<<costo_actual<<" Costo Poblacion = "<<costo_poblacion<<endl;
+			double porcentaje_solucion = costo_actual/costo_poblacion;
+			//cout <<"Porcentaje solucion= "<<porcentaje_solucion<<endl;
+
+			//cout <<"random_number= "<<random_number<<endl;
+			limite_superior+= porcentaje_solucion;
+
+			if(random_number>= limite_inferior && random_number <= limite_superior){
+				cout << "Encontro solucion por ruleta, i = "<<i << "random_number = "<<random_number<<endl;
+				return solucion_actual;
+			}
+			limite_inferior = limite_superior;
+		}
+		cout <<" Ruleta end "<<endl;
+		return resultado;
+	}	
 
 
 
 
 	//Hay que evaluar y ver si las condiciones se siguen cumpliendo al hacer esta mutacion
 	//Las rutas seran de la forma 0 (pos 0) 15 (pos x,y) 14 (pos x,y) 0 2 4 0 15 17 0 1 3 
-	/*
+	
 
-	vector<pair<int,pair<double,double>>> AlgoritmoGenetico::Mutacion(vector<pair<int,pair<double,double> > > rutas ){ //toma una ruta, de forma aleatoria cambia alguna variable
+	vector<NodoCliente> AlgoritmoGenetico::Mutacion(vector<NodoCliente> solucion ){ //toma una ruta, de forma aleatoria cambia alguna variable
 		//Random between 2 numbers int randNum = rand()%(max-min + 1) + min;
-		int rutas_length = rutas.size();
-		int PrimerElemento =0;
-		int SegundoElemento = 0;
-		pair<double,double> = posicionPrimerElemento;
-		pair<double,double> = posicionSegundoElemento;
+		int solucion_length = solucion.size();
+		
+		int idPrimerElemento =0;
+		int idSegundoElemento = 0;
+
 		int indexPrimerElemento =0;
 		int indexSegundoElemento = 0;
 
-		while(PrimerElemento ==0 || SegundoElemento==0){ 
-			if(PrimerElemento == 0){
-				indexPrimerElemento = rand()%(rutas_length);
+		while(idPrimerElemento ==0 || idSegundoElemento==0){ // Queremos cambiar clientes, no 'depositos', por eso esta comprobacion
+			if(idPrimerElemento == 0){
+				indexPrimerElemento = rand()%(solucion_length);
 			}
-			if(SegundoElemento == 0){
-				indexSegundoElemento = rand()%(rutas_length);
+			if(idSegundoElemento == 0){
+				indexSegundoElemento = rand()%(solucion_length);
 			}
-			PrimerElemento = get<0>rutas.at(indexPrimerElemento);
-			posicionPrimerElemento = get<1>rutas.at(indexPrimerElemento);
-			SegundoElemento = get<0>rutas.at(indexSegundoElemento);
-			posicionSegundoElemento = get<1>rutas.at(indexSegundoElemento);
+			idPrimerElemento = solucion.at(indexPrimerElemento).getId(); 
+			idSegundoElemento = solucion.at(indexSegundoElemento).getId();
 
 		}
 
 		//SWAP entre variables!
-		int tempElemento = PrimerElemento; 
-		pair<double,double> tempPosicion = posicionPrimerElemento;
-		rutas.at(indexPrimerElemento) =  pair<get<0>ruta.at(indexSegundoElemento),get<1>rutas.at(indexSegundoElemento));
-		rutas.at(indexSegundoElemento) = pair<PrimerElemento,tempPosicion>;
-		return rutas;
+		NodoCliente  tmp = NodoCliente(); // var tmp
+
+
+		NodoCliente & nodo1 = solucion.at(indexPrimerElemento);
+		NodoCliente & nodo2 = solucion.at(indexSegundoElemento);
+
+		cout << "Mutacion Id  pre swap nodo 1 = "<<nodo1.getId();
+
+		//Guardar datos temporales de nodo 1 en tmp
+
+		tmp.setDemanda(nodo1.getDemanda());
+		tmp.setId(nodo1.getId());
+		tmp.setPosicion(nodo1.getCoordenadaX(),nodo1.getCoordenadaY()); // debiese funcionar, comprobar
+
+		//Guardar datos de nodo 2 en nodo 1
+
+		nodo1.setDemanda(nodo2.getDemanda());
+		nodo1.setId(nodo2.getId());
+		nodo1.setPosicion(nodo2.getCoordenadaX(),nodo2.getCoordenadaY());
+
+		//guardar datos de tmp en nodo 2
+
+		nodo2.setDemanda(tmp.getDemanda());
+		nodo2.setId(tmp.getId());
+		nodo2.setPosicion(tmp.getCoordenadaX(),tmp.getCoordenadaY());
+
+
+		//cout << "Mutacion Id nodo 1 = "<<nodo1.getId() << "ID tmp despues swap = "<<tmp.getId()<<endl;
+
+		cout << "Mutacion Id  post swap nodo 1 = "<<nodo1.getId()<<endl;
+		return solucion;
 	}
 
 	//OBservacion: La distancia tiene la misma prioridad que el tiempo de servicio 
-
+/*
 	int AlgoritmoGenetico::EvaluarCalidad(vector<pair<int,pair<double,double> > > rutas, int tiempo_servicio, pair<double,double> posicionDeposito){
 		int costo = 0;
 		int rutas_length = rutas.size();
@@ -288,35 +449,25 @@ using namespace std;
 */
 
 
-	vector<NodoCliente> AlgoritmoGenetico::EncontrarMejorSolucion(vector<vector<NodoCliente> > poblacion, int tiempo_servicio){
-		int size_poblacion = poblacion.size();
-		double costo_global = MAX_DOUBLE;
-		vector<NodoCliente> mejor_solucion_global;		
-		vector<NodoCliente> solucion_actual;
 
-		for(int i = 0;i < size_poblacion;i++){
-			solucion_actual = poblacion.at(i);
-			double costo_actual = EvaluarCalidad(solucion_actual,tiempo_servicio);
 
-			if(costo_actual<costo_global){
-				mejor_solucion_global = solucion_actual;
-				costo_global = costo_actual;
-			}
-		}
-		return mejor_solucion_global;
-	}
-/*
-	vector<pair<int,pair<double,double> > > AlgoritmoGenetico::RellenarMitad(vector<pair<int,pair<double,double> > > nuevaSolucion, vector<pair<int,pair<double,double> > > solucionVieja, int start,int end){
-	
-			for(int i = start; i<index+1;i++){
-				nuevaSolucion.push_back(solucionVieja.at(i));
-			}		
+
+	vector<NodoCliente> AlgoritmoGenetico::RellenarMitad(vector<NodoCliente> solucionNueva,vector<NodoCliente> solucionVieja, int start,int end){
 		
+
+			for(int i = start; i<end+1;i++){
+				solucionNueva.push_back(solucionVieja.at(i));
+			}		
+			return solucionNueva;
+		
+
 	}
-	int AlgoritmoGenetico::ContieneElemento(vector<pair<int,pair<double,double> > > solucion, int index, int cliente){
+
+
+	int AlgoritmoGenetico::ContieneElemento(vector<NodoCliente > solucion, int index, int cliente){
 		int length_solucion = solucion.size();
 		for(int i = index; i<length_solucion;i++){
-			if(get<0>solucion.at(i) == cliente){
+			if(solucion.at(i).getId() == cliente){
 				return i; //return el index donde se encuentra
 			}
 		}
@@ -324,91 +475,135 @@ using namespace std;
 	}
 
 
-
-	pair<vector<pair<int,pair<double,double> > >,vector<pair<int,pair<double,double> > > > AlgoritmoGenetico::Cruzamiento(vector<pair<int,pair<double,double> > > solucion1,vector<pair<int,pair<double,double> > > solucion2,int num_clientes){
+	//Entrega 2 hijos! a partir de 2 padres
+	vector<vector<NodoCliente> > AlgoritmoGenetico::Cruzamiento(vector<NodoCliente > solucion1,vector<NodoCliente > solucion2){
 		//Cada mitad desde el inicio al punto de corte se intercambian
 		//Los valores que se intercambian, si estan en la segunda mitad de donde llegan se eliminan de ahi
 		//Los valores que se intercambian, si no aparecen en la nueva solucion, uno x uno se colocan en el mejor ajuste
-
 		int length_solucion1 = solucion1.size();
 		int length_solucion2 = solucion2.size();
 		int punto_corte = int(min(length_solucion1,length_solucion2)/2) -1; // ahora tenemos un nuevo indice, hasta este valor incluyendolo se intercambian mitades
 
-		vector<pair<int,pair<double,double>>> nuevasolucion1;
-		vector<pair<int,pair<double,double>>> nuevasolucion2;
+		 
+		cout << "CAIDA 1"<<endl<<endl;
 
-		RellenarMitad(nuevasolucion2,solucion1,0,punto_corte); //Intercambiar hasta el punto de corte.
-		RellenarMitad(nuevasolucion1,solucion2,0,punto_corte); 
+		vector<NodoCliente> nuevasolucion1;
+		vector<NodoCliente> nuevasolucion2;
 
-		RellenarMitad(nuevasolucion2,solucion2,punto_corte+1,length_solucion2-1); //copiar mitad restante
-		RellenarMitad(nuevasolucion1,solucion1,punto_corte+1,length_solucion1-1); 
+		vector<NodoCliente> nuevasolucion1_rellenada_mitad = RellenarMitad(nuevasolucion1, solucion2,0,punto_corte); //Intercambiar hasta el punto de corte.
+		vector<NodoCliente> nuevasolucion2_rellenada_mitad =RellenarMitad(nuevasolucion2,solucion1,0,punto_corte); 
 
+		vector<NodoCliente> solucion_rellenada_final_2 = RellenarMitad(nuevasolucion2,solucion2,punto_corte+1,length_solucion2-1); //copiar mitad restante
+		vector<NodoCliente> solucion_rellenada_final_1 = RellenarMitad(nuevasolucion1,solucion1,punto_corte+1,length_solucion1-1); 
+
+		vector<NodoCliente>  s2;
+		vector<NodoCliente> s1;
 		//Por cada elemento que este en la primera mitad, eliminarlo de la segunda y calzarlo donde mejor calce.
 		for(int i = 0; i<punto_corte+1;i++){
-			int cliente1 = get<0>solucion1.at(i);
-			int cliente2 = get<0>solucion2.at(i);
-			pair<double,double> posicionCliente1 = get<1>solucion1.at(i);
-			pair<double,double> posicionCliente2 = get<1>solucion2.at(i);
+			int idCliente1 = solucion_rellenada_final_1.at(i).getId();
+			int idCliente2 = solucion_rellenada_final_2.at(i).getId();
 
-			int resultado1 = ContieneElemento(solucion1,punto_corte+1,cliente1);
-			int resultado2 = ContieneElemento(solucion2,punto_corte+1,cliente2);
+
+			double x_1 = solucion_rellenada_final_1.at(i).getCoordenadaX();
+			double y_1 = solucion_rellenada_final_1.at(i).getCoordenadaY();
+
+			double x_2 = solucion_rellenada_final_2.at(i).getCoordenadaX();
+			double y_2 = solucion_rellenada_final_2.at(i).getCoordenadaY();
+
+			double demanda_c1 = solucion_rellenada_final_1.at(i).getDemanda();
+			double demanda_c2 = solucion_rellenada_final_2.at(i).getDemanda();
+
+			int resultado1 = ContieneElemento(solucion_rellenada_final_1,punto_corte+1,idCliente1);
+			int resultado2 = ContieneElemento(solucion_rellenada_final_2,punto_corte+1,idCliente2);
+			//Aqui hay algo malo, por cada elemento meh
+
 			if(resultado1 != -1){ // significa que contiene el elemento, quitar de la pila y 
-				solucion1.erase(solucion1.begin() + resultado1); // removido del vector
-				solucion1 = MejorCalce(solucion1,cliente1,posicionCliente1);
+				solucion_rellenada_final_1.erase(solucion_rellenada_final_1.begin() + resultado1); // removido del vector
+				
+
+				solucion_rellenada_final_1 = MejorCalce(solucion_rellenada_final_1,idCliente1,x_1,y_1,demanda_c1);
 			}
 			if(resultado2 != -1){ // significa que contiene el elemento, quitar de la pila y 
-				solucion2.erase(solucion1.begin() + resultado1); // removido del vector
-				solucion2 = MejorCalce(solucion2,cliente2,posicionCliente2);
+				solucion_rellenada_final_2.erase(solucion_rellenada_final_2.begin() + resultado2); // removido del vector
+				solucion_rellenada_final_2 = MejorCalce(solucion_rellenada_final_2,idCliente2,x_2,y_2,demanda_c2);
+				//VER SI SOLUCION_RELLENADA_FINAL_2 SE REDEFINE CADA VEZ..la idea es ir quitando los elementos incompatibles!!	
+
 			}
 		}
+		
 
 
 		//Eliminar 2 0 concecutivos, o un 0 al final (Revision de gramatica)
-		nuevasolucion1 = RevisionGramatica(nuevasolucion1);
-		nuevasolucion2 = RevisionGramatica(nuevasolucion2);
+		vector<NodoCliente> s1_f = RevisionGramatica(solucion_rellenada_final_1);
+		vector<NodoCliente> s2_f = RevisionGramatica(solucion_rellenada_final_2);
+		
 
-		return pair<nuevasolucion1,nueva2>;
+		vector<vector<NodoCliente> > resultado;
+			
+
+		resultado.push_back(s1_f);
+				
+
+		resultado.push_back(s2_f);
+		cout << "CrossOver terminado";
+		return resultado; // arreglo de dos elementos, hay dos nuevas soluciones!
 
 	}
 
-	vector<pair<int,pair<double,double> > > AlgoritmoGenetico::MejorCalce(vector<pair<int,pair<double,double> > > solucion, int cliente, pair<double,double> posicionCliente){
-		int costo_global = MAX_DOUBLE;
+	vector<NodoCliente > AlgoritmoGenetico::MejorCalce(vector<NodoCliente > solucion, int cliente, double coordenada_x_cliente, double coordenada_y_cliente, double demanda){
+		double costo_global = MAX_DOUBLE;
 		int size_solucion = solucion.size();
-		pair<double,double> posicion_elemento_actual;
-		pair<double,double>posicion_elemento_siguiente;
+
+		double x_elemento_actual;
+		double y_elemento_actual;
+
+		double x_elemento_siguiente;
+		double y_elemento_siguiente;
+
+
 		int index = -1;
 		for(int i = 0; i<size_solucion-1;i++){
-			posicion_elemento_actual = get<1>solucion.at(i);
-			posicion_elemento_siguiente = get<1> solucion.at(i+1);
-			
-			elemento_actual = get<0>solucion.at(i);
-			elemento_siguiente = get<0>solucion.at(i+1);
-			int costo_actual;
 
-			if(elemento_siguiente == 0){
-				costo_actual = abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente))); //nO Necesita ser comparado con elemento siguiente
+			x_elemento_actual = solucion.at(i).getCoordenadaX();
+			y_elemento_actual = solucion.at(i).getCoordenadaY();
+
+			x_elemento_siguiente = solucion.at(i+1).getCoordenadaX();
+			y_elemento_siguiente = solucion.at(i+1).getCoordenadaY();
+
+			
+			int id_elemento_siguiente = solucion.at(i+1).getId();
+			
+			double costo_actual;
+
+			if(id_elemento_siguiente == 0){
+				costo_actual = DistanciaEuclidiana(x_elemento_actual,y_elemento_actual,coordenada_x_cliente,coordenada_y_cliente); //nO Necesita ser comparado con elemento siguiente
 
 			}
 			else{
-				costo_actual = abs(DistanciaEuclidiana(posicion_elemento_actual,posicionCliente)+abs(DistanciaEuclidiana(posicion_elemento_siguiente,posicionCliente)));
+				costo_actual = DistanciaEuclidiana(x_elemento_actual,y_elemento_actual,coordenada_x_cliente,coordenada_y_cliente)+DistanciaEuclidiana(x_elemento_siguiente,y_elemento_siguiente,coordenada_x_cliente,coordenada_y_cliente);
 			}
 
 			if(costo_actual<costo_global){
 				index = i; //Agregar despues de ese index
+				costo_global = costo_actual; //update
 			}
 		}
 		//Evaluar si es conveniente ponerla al final de la solucion
-		if((DistanciaEuclidiana(solucion.at(size_solucion-1))) < costo_global){
-			costo_global = abs(DistanciaEuclidiana(solucion.at(size_solucion-1)));
+		double x_ultimo_elemento = solucion.at(size_solucion-1).getCoordenadaX();
+		double y_ultimo_elemento = solucion.at(size_solucion-1).getCoordenadaY();
+
+		if(DistanciaEuclidiana(x_ultimo_elemento,y_ultimo_elemento,coordenada_x_cliente,coordenada_y_cliente) < costo_global){
+			costo_global = DistanciaEuclidiana(x_ultimo_elemento,y_ultimo_elemento,coordenada_x_cliente,coordenada_y_cliente);
 			index = size_solucion-1;
 		}
 
-		vector<pair<int,pair<double,double> > > nuevaSolucion;
+		vector<NodoCliente > nuevaSolucion; // esta se retorna.
 
-		for(int j = 0; j<index+1;j++){
+		for(int j = 0; j<index+1;j++){ //revisar si el index esta correcto
 			nuevaSolucion.push_back(solucion.at(j));
 		}
-		pair<int,pair<double,double> > elemento = pair<cliente,posicionCliente>; // reemplazar por struct despues
+
+		NodoCliente elemento(cliente,coordenada_x_cliente,coordenada_y_cliente,demanda);
 		nuevaSolucion.push_back(elemento); // elemento actual
 		for(int z = index+1; z <size_solucion;z++){
 			nuevaSolucion.push_back(solucion.at(z));
@@ -416,18 +611,20 @@ using namespace std;
 		return nuevaSolucion;
 	}
 
-	vector<pair<int,pair<double,double> > > AlgoritmoGenetico::RevisionGramatica(vector<pair<int,pair<double,double> > > solucion){
+
+	vector<NodoCliente > AlgoritmoGenetico::RevisionGramatica(vector<NodoCliente> solucion){
 		int size_solucion = solucion.size();
 		for(int i = 0; i<size_solucion-1;i++){
-			int elemento_actual = get<0>solucion.at(i);
-			int elemento_siguiente = get<0> solucion.at(i+1);
-			if(elemento_actual == elemento_siguiente){ //POdria ocurrir tener 2 ocurrencias de '0'
+			int id_elemento_actual = solucion.at(i).getId();
+			
+			int id_elemento_siguiente = solucion.at(i+1).getId();
+
+			if(id_elemento_actual == id_elemento_siguiente){ //POdria ocurrir tener 2 ocurrencias de '0'
 				solucion.erase(solucion.begin()+i);
 			}
 		}
 		return solucion;
 	}
-*/
 
 
 

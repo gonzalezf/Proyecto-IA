@@ -7,9 +7,9 @@ using namespace std;
 		idCliente = 0;
 		posicionx = 0;
 		posiciony = 0;
-		demanda = 0;
+		demanda = 0.0;
 	}
-	NodoCliente::NodoCliente(int id, double x, double y, int d){
+	NodoCliente::NodoCliente(int id, double x, double y, double d){
 		idCliente = id;
 		posicionx = x;
 		posiciony = y;
@@ -32,9 +32,10 @@ using namespace std;
 		posicionx = x;
 		posiciony = y;
 	}
-	int NodoCliente::getDemanda(){
+	double NodoCliente::getDemanda(){
 		return demanda;
 	}
-	void NodoCliente::setDemanda(int d){
+	void NodoCliente::setDemanda(double d){ // esta funcion si funciona
 		demanda = d;
+
 	}

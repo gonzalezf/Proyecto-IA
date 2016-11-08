@@ -15,16 +15,11 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 
 //Definición de parametros
 
-#define PMUTATION 0.15 //porcentaje mutacion
-#define PXOVER 0.8 //Porcentaje crossover
-#define TAMANO_POBLACION 50
+#define PMUTATION 0.2 //porcentaje mutacion 
+#define PXOVER 0.8 //Porcentaje crossover  // solo este importa
+#define TAMANO_POBLACION 10000
+#define NUM_ELITISMO 20 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
  // cantidad de soluciones 
-
-//Cada genotipo es un miembro de la población con
-// gene: rutas 
-// fitness: the fitness (será igual al valor de la Funcion objetivo)
-//Cada ruta es un gen
-//genotipo es un conjunto de rutas
 
 
 
@@ -71,10 +66,41 @@ int main(int argc, char **argv){
     //helper.LeerInstancia(path);
   }
 
+  vector<vector<NodoCliente> > poblacion; // A esta se le agregara las mejores de la pob inicial y resultados de mutacion y cruzamiento
   //INICIALIZAR POBLACION
-
   vector<vector<NodoCliente> > poblacionInicial  = AG.InicializarPoblacion(TAMANO_POBLACION,path); // Se obtiene población con la cual trabajar
   //AG.LeerPoblacion(poblacionInicial);
+  //ELITISMO
+  vector<vector<NodoCliente> > tmp_mejores_soluciones_pob_inicial  = AG.ObtenerMejoresSoluciones(poblacionInicial,NUM_ELITISMO);
+  double costo_poblacion = AG.CostoPoblacion(poblacionInicial);
+  cout << "Costo poblacion = "<<costo_poblacion<<endl;
+
+  //SELECCIONAR 2 SOLUCIONES DE LA POBLACION ANTERIOR PARA REALIZAR TRANSFORMACION
+  for(int i = 0; i< (100);i++){
+
+    //diversificacion;
+    vector<NodoCliente> solucion1 = AG.ObtenerSolucionPorRuleta(poblacionInicial,costo_poblacion); //Mejorar
+    vector<NodoCliente> solucion2 = AG.ObtenerSolucionPorRuleta(poblacionInicial,costo_poblacion); // SOluciones iguales
+
+    //REALIZAR MUTACIONES Y CRUZAMIENTO EN BASE A PROBABILIDAD, AGREGAR RESULTADO A LA POBLACION INICIAL.Verificar que sea factible!!
+
+    double num_random_operador = (rand() % 100 + 1)/100.0;     // este numero determina si se cruza o no
+
+    if(num_random_operador<PXOVER){
+      // REALIZAR CRUZAMIENTO
+
+      vector<vector<NodoCliente> > soluciones_mutadas = AG.Cruzamiento(solucion1,solucion2);
+    }
+    else{
+      vector<NodoCliente> solucion_mutada_1 = AG.Mutacion(solucion1); // Comprobar que efectivamente muta y no cambia solamente valores de una copia.
+      vector<NodoCliente> solucion_mutada_2 = AG.Mutacion(solucion2);
+
+    }
+
+  }
+
+
+
 
 
   return 0;
