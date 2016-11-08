@@ -46,16 +46,13 @@ class AlgoritmoGenetico{
 	vector<NodoCliente> Mutacion(vector<NodoCliente> solucion );//toma una ruta, de forma aleatoria cambia alguna variable
 	vector<vector<NodoCliente> > Cruzamiento(vector<NodoCliente > solucion1,vector<NodoCliente > solucion2);
 
+	//INFORMAR MEJOR SOLUCION
+	int EscribirMejorSolucion(vector<NodoCliente > solucion,double costo);
 
+	//UNA VEZ MUTADO HAY QUE REASIGNAR EL COSTO Y VER SI SON FACTIBLES!
 
 /*
-	int EvaluarCapacidad(vector<nodoCliente> solucion, int capacidad_vehiculo);
-	int EvaluarCalidad(vector<pair<int,pair<double,double> > > rutas, int tiempo_servicio, pair<double,double> posicionDeposito);
 	int EscribirMejorSolucion(vector<pair<int,pair<double,double> > > solucion,int costo);
-	pair<vector<pair<int,pair<double,double> > >,double> EncontrarMejorSolucion(vector<vector<pair<int,pair<double,double> > > > poblacion, int tiempo_servicio, pair<double,double> posicionDeposito);
-	int ContieneElemento(vector<pair<int,pair<double,double> > > solucion, int index, int cliente);
-	pair<vector<pair<int,pair<double,double> > >,vector<pair<int,pair<double,double> > > > Cruzamiento(vector<pair<int,pair<double,double> > > solucion1,vector<pair<int,pair<double,double> > > solucion2,int num_clientes);
-	vector<pair<int,pair<double,double> > > MejorCalce(vector<pair<int,pair<double,double> > > solucion, int cliente, pair<double,double> posicionCliente);
 */
 
 	//OTROS

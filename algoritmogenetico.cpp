@@ -402,53 +402,6 @@ using namespace std;
 		return solucion;
 	}
 
-	//OBservacion: La distancia tiene la misma prioridad que el tiempo de servicio 
-/*
-	int AlgoritmoGenetico::EvaluarCalidad(vector<pair<int,pair<double,double> > > rutas, int tiempo_servicio, pair<double,double> posicionDeposito){
-		int costo = 0;
-		int rutas_length = rutas.size();
-
-		for(int i =0; i<rutas_length;i++){
-			//Descomponer 
-			int cliente = get<0>rutas.at(i);
-			pair<double,double> posicion_actual = get<1>rutas.at(i); // esto no funcionaria , arreglar
-			if(cliente !=0){
-				costo += tiempo_servicio; // tiempo gastado en atender a este cliente
-				costo += DistanciaEuclidiana(posicionDeposito,posicion_actual); 
-			}
-		}
-		return costo;
-	}
-
-	int AlgoritmoGenetico::EscribirMejorSolucion(vector<pair<int,pair<double,double> > > solucion,int costo){
-		int solucion_length = solucion.size();
-
-		ofstream myfile;
-  		myfile.open ("mejor_solucion.txt");
-  		int num_rutas = 1;
-  		int cliente_actual = -1;
-  		bool start = true;
-  		for(int i = 0, i<solucion_length;i++){
-  			cliente_actual = get<0>solucion.at(i);
-  			if(cliente_actual == 0){
-  				if(!start){
-  					myfile<<endl;
-  				}
-  				myfile <<"ROUTE #"<<num_rutas<<" : ";
-  				num_rutas++;
-  				start = false;
-  			}
-  			if(cliente_actual !=0){
-  				myfile << cliente_actual <<" ";
-  			}
-  		}
- 		myfile << "COST "<<costo<<endl;
-  		myfile.close();
-  		return 0;
-	}
-*/
-
-
 
 
 
@@ -485,7 +438,6 @@ using namespace std;
 		int punto_corte = int(min(length_solucion1,length_solucion2)/2) -1; // ahora tenemos un nuevo indice, hasta este valor incluyendolo se intercambian mitades
 
 		 
-		cout << "CAIDA 1"<<endl<<endl;
 
 		vector<NodoCliente> nuevasolucion1;
 		vector<NodoCliente> nuevasolucion2;
@@ -545,7 +497,7 @@ using namespace std;
 				
 
 		resultado.push_back(s2_f);
-		cout << "CrossOver terminado";
+		cout << "CrossOver terminado"<<endl;
 		return resultado; // arreglo de dos elementos, hay dos nuevas soluciones!
 
 	}
@@ -625,9 +577,61 @@ using namespace std;
 		}
 		return solucion;
 	}
+	/*
+	/////////////////////////////////////////////////////////////////////////////////////
+	/\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ENCONTRAR MEJOR SOLUCION \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+	/////////////////////////////////////////////////////////////////////////////////////
+	*/
+
+
+	int AlgoritmoGenetico::EscribirMejorSolucion(vector<NodoCliente > solucion,double costo){
+		int solucion_length = solucion.size();
+
+		ofstream myfile;
+  		myfile.open ("mejor_solucion.txt"); // colocar el nombre de la instancia!
+  		int num_rutas = 1;
+  		int id_cliente_actual = -1;
+  		bool start = true;
+  		for(int i = 0; i<solucion_length;i++){
+  			id_cliente_actual = solucion.at(i).getId();
+  			if(id_cliente_actual == 0){
+  				if(!start){
+  					myfile<<endl;
+  				}
+  				myfile <<"ROUTE #"<<num_rutas<<" : ";
+  				num_rutas++;
+  				start = false;
+  			}
+  			if(id_cliente_actual !=0){
+  				myfile << id_cliente_actual <<" ";
+  			}
+  		}
+ 		myfile << "COST "<<costo<<endl;
+  		myfile.close();
+  		return 0;
+	}
 
 
 
 
+	//OBservacion: La distancia tiene la misma prioridad que el tiempo de servicio 
+/*
+	int AlgoritmoGenetico::EvaluarCalidad(vector<pair<int,pair<double,double> > > rutas, int tiempo_servicio, pair<double,double> posicionDeposito){
+		int costo = 0;
+		int rutas_length = rutas.size();
 
+		for(int i =0; i<rutas_length;i++){
+			//Descomponer 
+			int cliente = get<0>rutas.at(i);
+			pair<double,double> posicion_actual = get<1>rutas.at(i); // esto no funcionaria , arreglar
+			if(cliente !=0){
+				costo += tiempo_servicio; // tiempo gastado en atender a este cliente
+				costo += DistanciaEuclidiana(posicionDeposito,posicion_actual); 
+			}
+		}
+		return costo;
+	}
+
+
+*/
 
