@@ -1,10 +1,13 @@
 using namespace std;
 #include "algoritmogenetico.h"
 #include "nodocliente.h"
+#include <time.h>
 
 /* Para compilar
 g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
+
 ./a.out vrpnc1
+
 */
 
 //ENCONTRAR MEJOR SOLUCION
@@ -36,17 +39,20 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 #define PXOVER 0.8 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
 #define TAMANO_POBLACION 100000 
 #define NUM_ELITISMO 100 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
-#define NUM_GENERACIONES_STOP 30 // Criterio de Termino
+#define NUM_GENERACIONES_STOP 25 // Criterio de Termino
 #define COSTO_ACTIVACION_VEHICULO 20 
-#define CANTIDAD_TRANSFORMACIONES 100
+#define CANTIDAD_TRANSFORMACIONES 30
 #define NUM_MAX_ITERACIONES 2000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
 
 
 
 
 int main(int argc, char **argv){
-
+  time_t start = time(0);
+  double seconds_since_start;
   srand(time(0));
+
+  
 
   cout << "Algoritmo Genetico con 2 operadores para Open Vehicle Routing Problem" << endl;
   cout << "Felipe González  P." << endl << endl;
@@ -103,7 +109,10 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
   vector<NodoCliente> peor_solucion_inicial = poblacionInicial.at(AG.ObtenerPeorSolucion(poblacionInicial));
   double costo_peor_solucion = peor_solucion_inicial.at(0).getDemanda();
   double costo_mejor_solucion = AG.ObtenerMejoresSoluciones(poblacionInicial,1).at(0).at(0).getDemanda();
-  cout<<"Pob Inicial Aleatoria - "<<"Costo MS = "<<costo_mejor_solucion<<"Costo PS = "<<costo_peor_solucion<<endl;
+  seconds_since_start = difftime( time(0), start);
+  helper.ImprimirTiempoTranscurrido(seconds_since_start);
+ 
+   cout<<"Pob Inicial Aleatoria - "<<"Mejor Solucion = "<<costo_mejor_solucion<<"  Peor Solucion = "<<costo_peor_solucion<<endl;
   vector<vector<NodoCliente> > next_poblacion; // ESE ELEMENTO DEBE REDEFINIRSE VARIAS VECES, VER SI FUNCIONA, ELIMINAR TODO Y VOLVER A LLENAR
 /*
 ////////////////////////7TAREA
@@ -247,8 +256,11 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
         //cout<<"Id cliente MEJOR SOLUCION EN GENERACION = "<<AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getCoordenadaX();
         vector<NodoCliente> mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0);
         costo_mejor_solucion = mejor_solucion.at(0).getDemanda();
-        cout<<"GENERACION = "<<generacion_actual<<" SIZE "<<next_poblacion.size()<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
+        seconds_since_start = difftime( time(0), start);
+        helper.ImprimirTiempoTranscurrido(seconds_since_start);
         AG.EscribirMejorSolucion(mejor_solucion,costo_mejor_solucion); //Informar mejor solucion
+
+        cout<<"GENERACION = "<<generacion_actual<<next_poblacion.size()<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
     }
     else{
         vector<vector<NodoCliente> > ultima_generacion = AG.ObtenerMejoresSoluciones(next_poblacion,NUM_ELITISMO);
@@ -360,8 +372,13 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
         next_poblacion = ultima_generacion; // UPDATE, VER SI FUNCIONA! ES ESCENCIAL!
 
         costo_peor_solucion = next_poblacion.at(AG.ObtenerPeorSolucion(next_poblacion)).at(0).getDemanda();
-        costo_mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getDemanda();
+        vector<NodoCliente> mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0);
+        costo_mejor_solucion = mejor_solucion.at(0).getDemanda();
+        seconds_since_start = difftime( time(0), start);
+        helper.ImprimirTiempoTranscurrido(seconds_since_start);
+        AG.EscribirMejorSolucion(mejor_solucion,costo_mejor_solucion); //Informar mejor solucion
         cout<<"GENERACION = "<<generacion_actual<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
+       
     }
 
     //Escribir mejor solucion de la generacion actual en carpeta temporal!

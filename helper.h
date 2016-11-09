@@ -16,7 +16,8 @@ class Helper {
 	public:
     bool ArchivoExiste(const std::string& name);
 	void LeerInstancia(const std::string& fileName);
-	
+	void ImprimirTiempoTranscurrido(double num);
+
 
 
 };
