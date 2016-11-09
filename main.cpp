@@ -142,42 +142,45 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
               //cout<<"PREVIA!!! id = "<<solucion1.at(0).getId()<<endl;;
 
               soluciones_cruzadas = AG.Cruzamiento(solucion1,solucion2); //COMPROBAR QUE EFECTIVAMENTE CRUZA y que es una solucion factible, SE PODRIA crear una funcion que descarte si resultado no es factible o que quite los 0 y comience a rellenar de nuevo
-              cout<<"OJO!!! id = "<<soluciones_cruzadas.at(0).at(0).getId()<<endl;;
+              
+              NodoCliente nodo_deposito_hijo_1 = AG.ObtenerNodoDeposito(soluciones_cruzadas.at(0));
+              NodoCliente nodo_deposito_hijo_2 = AG.ObtenerNodoDeposito(soluciones_cruzadas.at(1));
+              //cout<<"CRUZAMIENTO - ITERACION = "<<iteraciones<<endl;
+              //cout<<"OJO!!! id = "<<soluciones_cruzadas.at(0).at(0).getId()<<endl;// ya funciona, 09:22
+              vector<NodoCliente> hijo_1_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(0));
+              vector<NodoCliente> hijo_2_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(1));
 
-              double costo_hijo_1 = AG.EvaluarCalidad(soluciones_cruzadas.at(0),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
-              double costo_hijo_2 = AG.EvaluarCalidad(soluciones_cruzadas.at(1),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
-              //cout<<"C"<<endl;
+              vector<NodoCliente> hijo_1_final = AG.CrearRutasFactibles(hijo_1_pre_final,nodo_deposito_hijo_1,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
+              vector<NodoCliente> hijo_2_final = AG.CrearRutasFactibles(hijo_2_pre_final,nodo_deposito_hijo_2,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
 
-            
+
+              double costo_hijo_1 = AG.EvaluarCalidad(hijo_1_final,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
+              double costo_hijo_2 = AG.EvaluarCalidad(hijo_2_final,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
+           
+
+
+              cout<<" costo_hijo_1 = "<<costo_hijo_1<<" costo_hijo_2= "<<costo_hijo_2<<" costo_peor_solucion = "<<costo_peor_solucion<<endl;            
+              //AG.EscribirMejorSolucion(soluciones_cruzadas.at(0),costo_hijo_1);
               if(costo_hijo_1 != -1 && costo_hijo_2 != -1 && (costo_hijo_1 < costo_peor_solucion) && (costo_hijo_2 < costo_peor_solucion)){
                 cruzamiento_factible = true;
                 //AG.SetCostoSolucion(soluciones_cruzadas.at(0),costo_hijo_1); //OJO! SE SUPONE QUE EL PRIMER NODO ES ID = 0
-                NodoCliente & prueba1 = soluciones_cruzadas.at(0).at(0);
+                NodoCliente & prueba1 = hijo_1_final.at(0);
                 prueba1.setDemanda(costo_hijo_1);
                 //cout<<"ID DEPOSITO HIJO 1 = "<<prueba1.getId()<<endl;
                 //cout<<" COSTO ES = "<<soluciones_cruzadas.at(0).at(0).getDemanda()<<" pero es = "<<costo_hijo_1<<endl;
                 //AG.SetCostoSolucion(soluciones_cruzadas.at(1),costo_hijo_2);
 
-                NodoCliente & prueba2 = soluciones_cruzadas.at(1).at(0);
+                NodoCliente & prueba2 = hijo_2_final.at(0);
                 prueba2.setDemanda(costo_hijo_2);
                 //cout<<"ID DEPOSITO HIJO 2 = "<<prueba2.getId(); // ESTA RETORNANDO OTRA ID DEL DEPOSITO!
                 //cout<<" COSTO ES = "<<soluciones_cruzadas.at(1).at(0).getDemanda()<<" pero es = "<<costo_hijo_2<<endl;
 
-
-                //cout<<"D"<<endl;
-
+                next_poblacion.push_back(hijo_1_final); // se inserta hijo a la siguiente generacion
+                next_poblacion.push_back(hijo_2_final);
+                cout<<"HIJOS INGRESADOS A LA POB"<<endl;
               }
               //cout<<"E"<<endl;
-
-            }
-            //Agregar hijos a la poblacion nueva que se esta generando.
-            //cout<<"F"<<endl;
-
-            next_poblacion.push_back(soluciones_cruzadas.at(0)); // se inserta hijo a la siguiente generacion
-            next_poblacion.push_back(soluciones_cruzadas.at(1));
-            //cout<<"H"<<endl;
-
-            
+            }            
           }
           else{ // Realiza mutacion
              //cout<<"COSTO PREVIO MUTACION = "<<AG.CostoSolucion(solucion1)<<endl;
@@ -253,25 +256,43 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
           if(num_random_operador<=PXOVER){
             // REALIZAR CRUZAMIENTO
-            
+            int iteraciones = 0;
             vector<vector<NodoCliente> > soluciones_cruzadas;
-            while(!cruzamiento_factible){
-              
+            while(!cruzamiento_factible && (iteraciones < NUM_MAX_ITERACIONES)){
+              iteraciones++;
+
               soluciones_cruzadas = AG.Cruzamiento(solucion1,solucion2); //COMPROBAR QUE EFECTIVAMENTE CRUZA y que es una solucion factible, SE PODRIA crear una funcion que descarte si resultado no es factible o que quite los 0 y comience a rellenar de nuevo
-              double costo_hijo_1 = AG.EvaluarCalidad(soluciones_cruzadas.at(0),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
-              double costo_hijo_2 = AG.EvaluarCalidad(soluciones_cruzadas.at(1),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
+              NodoCliente nodo_deposito_hijo_1 = AG.ObtenerNodoDeposito(soluciones_cruzadas.at(0));
+              NodoCliente nodo_deposito_hijo_2 = AG.ObtenerNodoDeposito(soluciones_cruzadas.at(1));
+
+              vector<NodoCliente> hijo_1_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(0));
+              vector<NodoCliente> hijo_2_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(1));
+
+               vector<NodoCliente> hijo_1_final = AG.CrearRutasFactibles(hijo_1_pre_final,nodo_deposito_hijo_1,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
+               vector<NodoCliente> hijo_2_final = AG.CrearRutasFactibles(hijo_2_pre_final,nodo_deposito_hijo_2,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
+
+
+              double costo_hijo_1 = AG.EvaluarCalidad(hijo_1_final,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
+              double costo_hijo_2 = AG.EvaluarCalidad(hijo_2_final,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
             
               if(costo_hijo_1 != -1 && costo_hijo_2 != -1 && (costo_hijo_1 < costo_peor_solucion) && (costo_hijo_2 < costo_peor_solucion)){
                 cruzamiento_factible = true;
-                AG.SetCostoSolucion(soluciones_cruzadas.at(0),costo_hijo_1); // ver si efectivamente cambia el costo
-                AG.SetCostoSolucion(soluciones_cruzadas.at(1),costo_hijo_2);
+                //AG.SetCostoSolucion(soluciones_cruzadas.at(0),costo_hijo_1); // ver si efectivamente cambia el costo
+                //AG.SetCostoSolucion(soluciones_cruzadas.at(1),costo_hijo_2);
+                NodoCliente & prueba1 = hijo_1_final.at(0);
+                prueba1.setDemanda(costo_hijo_1);
+                NodoCliente & prueba2 = hijo_2_final.at(0);
+                prueba2.setDemanda(costo_hijo_2);
+
+                            //Agregar hijos a la poblacion nueva que se esta generando.
+                ultima_generacion.push_back(hijo_1_final); // se inserta hijo a la siguiente generacion
+                ultima_generacion.push_back(hijo_2_final);
+                cout<<"INGRESA HIJOS A POBLACION"<<endl;
                 //cout <<"COMPROBACION CAMBIO SET COSTO CRUZAMIENTO, demanda = "<<soluciones_cruzadas.at(0).at(0).getDemanda()<<" costo_hijo_1 "<<costo_hijo_1<<endl;
               }
             }
 
-            //Agregar hijos a la poblacion nueva que se esta generando.
-            ultima_generacion.push_back(soluciones_cruzadas.at(0)); // se inserta hijo a la siguiente generacion
-            ultima_generacion.push_back(soluciones_cruzadas.at(1));
+
             
           }
           else{

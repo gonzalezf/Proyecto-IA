@@ -92,6 +92,11 @@ using namespace std;
 		resultado.push_back(tiempo_servicio);
 		return resultado;
 	}
+	NodoCliente AlgoritmoGenetico::ObtenerNodoDeposito(vector<NodoCliente> solucion){
+		return solucion.at(0);
+
+	}
+
 
 	vector<vector<NodoCliente> > AlgoritmoGenetico::InicializarPoblacion(int tamano_poblacion, const std::string& fileName, int costo_activacion_vehiculo){
 		//cout << "Ejecutando InicializarPoblacion"<<endl;
@@ -327,6 +332,20 @@ using namespace std;
 		return mejor_solucion_global;
 	}
 
+	vector<NodoCliente> AlgoritmoGenetico::EliminarCeros(vector<NodoCliente> solucion){
+		int length_solucion = solucion.size();
+		vector<NodoCliente> resultado;
+		for(int i = 0; i<length_solucion;i++){
+			NodoCliente nodo_actual = solucion.at(i);
+			int id_actual = nodo_actual.getId();
+			if(id_actual!=0){
+				resultado.push_back(nodo_actual);
+			}
+
+		}
+		return resultado;
+	}
+
 	//DETERMINA EL COSTO DE LA SOLUCION, este valor luego es seteado en la demanda del deposito para acceder mas rapido. Devuelve -1 si solucion no es factible	
 		double AlgoritmoGenetico::EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio, int capacidad_vehiculos, int tiempo_max_ruta,int costo_activacion_vehiculo){
 		int length_solucion = solucion.size();
@@ -364,10 +383,20 @@ using namespace std;
 				tiempo_total_solucion += DistanciaEuclidiana(x_actual,y_actual,x_siguiente,y_siguiente);
 				tiempo_ruta_actual+= DistanciaEuclidiana(x_actual,y_actual,x_siguiente,y_siguiente);
 			}
+			if(tiempo_ruta_actual> tiempo_max_ruta){
+				cout<<"EXCEDIDO TIEMPO RUTA , ACTUAL = "<<tiempo_ruta_actual<<" T MAX = "<<tiempo_max_ruta<<endl;
+				return -1;
+			}
+			if(cantidad_almacenada > capacidad_vehiculos){
+				cout<<"EXCEDIDO CANTIDAD ALMACENADA, ACTUAL ="<<cantidad_almacenada<<" C MAX = "<<capacidad_vehiculos<<endl;
+				return -1;
+			}
+			/*
 			if(tiempo_ruta_actual > tiempo_max_ruta || cantidad_almacenada > capacidad_vehiculos){
 				//cout << "SOLUCION INFACTIBLE"; #qui
+				
 				return -1; // SOLUCION INFACTIBLE!
-			}
+			}*/
 		}
 		//Agregar el costo de la visita del ultimo nodo
 		//IF ULTIMO NODO ID != 0
@@ -509,9 +538,11 @@ using namespace std;
 		for(int z = index; z<length_solucion;z++){
 			//cout<<"I = "<<z<<" ID NODO = "<<solucion.at(z).getId()<<"CLIENTE BUSCADO = "<<cliente<<endl;
 			if(solucion.at(z).getId() == cliente){
+				//cout<<"ELIMINADO!!!"<<endl;
 				return z; //return el index donde se encuentra
 			}
 		}
+		//cout<<"return -1"<<endl;
 		return -1; //no existe el elemento, no fue encontrado.
 	}
 
@@ -549,7 +580,7 @@ using namespace std;
 		//cout<<"LLEGA ID S1 = "<<nuevasolucion1_rellenada_mitad.at(0).getId();// funciona
 		//cout<<"LLEGA ID S2 = "<<nuevasolucion2_rellenada_mitad.at(0).getId(); // funciona! 7:05
 
-		cout<<"LARGO  nvs1 rellenada mitad === "<<nuevasolucion1_rellenada_mitad.size()<<endl;
+		//cout<<"LARGO  nvs1 rellenada mitad === "<<nuevasolucion1_rellenada_mitad.size()<<endl;
 		//revisar si los indices que recibe rellenar mitad son correctos!
 
 
@@ -561,21 +592,23 @@ using namespace std;
 
 		vector<NodoCliente> solucion_rellenada_final_1 = UnirSoluciones(nuevasolucion1_rellenada_mitad,solucion_rellenada_pre_final_1);
 		vector<NodoCliente> solucion_rellenada_final_2 = UnirSoluciones(nuevasolucion2_rellenada_mitad,solucion_rellenada_pre_final_2);
-		
-		cout<<"LARGO 2 ojala que si al "<<solucion_rellenada_final_1.size()<<endl;
-
-		cout<<"LARGO 2 solucion rellenada final "<<solucion_rellenada_final_2.size()<<endl;
-
+		/*FUNCIONA, SUMA CORRECTAMENTE
+		cout<<"x "<<nuevasolucion1_rellenada_mitad.size()<<" y "<<solucion_rellenada_pre_final_1.size()<<" z "<<solucion_rellenada_final_1.size()<<endl;
+		cout<<"x "<<nuevasolucion2_rellenada_mitad.size()<<" y "<<solucion_rellenada_pre_final_2.size()<<" z "<<solucion_rellenada_final_2.size()<<endl;
+		*/
+	
 
 
 		vector<NodoCliente>  s2;
 		vector<NodoCliente> s1;
 		//Por cada elemento que este en la primera mitad, eliminarlo de la segunda y calzarlo donde mejor calce.
 		for(int i = 0; i<punto_corte+1;i++){ //incluyendo el punto de corte
-
+			//cout<<"A"<<endl;
 			int idCliente1 = solucion_rellenada_final_1.at(i).getId();
 			int idCliente2 = solucion_rellenada_final_2.at(i).getId();
-
+			if(i==0){
+				//cout<<" ID 1 = "<<idCliente1<< " ID 2 = "<<idCliente2<<endl;
+			}
 
 			double x_1 = solucion_rellenada_final_1.at(i).getCoordenadaX();
 			double y_1 = solucion_rellenada_final_1.at(i).getCoordenadaY();
@@ -589,37 +622,53 @@ using namespace std;
 			int resultado1 = ContieneElemento(solucion_rellenada_final_1,punto_corte+1,idCliente1); //Esta retornando siempre -1
 			int resultado2 = ContieneElemento(solucion_rellenada_final_2,punto_corte+1,idCliente2);
 			//cout<<"RESULTADOS!! = R1  = "<<resultado1<< "R2 = "<<resultado2<<endl;
+			//cout<<"B"<<endl;
 
 			//Aqui hay algo malo, por cada elemento meh
 
 			if(resultado1 != -1 && idCliente1 !=0){ // significa que contiene el elemento, quitar de la pila. No se eliminan 0 
 				solucion_rellenada_final_1.erase(solucion_rellenada_final_1.begin() + resultado1); // removido del vector
-				cout<<"id cliente1 ="<<idCliente1<<" size s1 rellenada "<<solucion_rellenada_final_1.size()<<endl;	
+				//cout<<"id cliente1 ="<<idCliente1<<" size s1 rellenada "<<solucion_rellenada_final_1.size()<<endl;	
 
 				solucion_rellenada_final_1 = MejorCalce(solucion_rellenada_final_1,idCliente1,x_1,y_1,demanda_c1);
 			}
 			if(resultado2 != -1 && idCliente2 != 0){ // significa que contiene el elemento, quitar de la pila y 
 				solucion_rellenada_final_2.erase(solucion_rellenada_final_2.begin() + resultado2); // removido del vector
+				//cout<<"ANTES DE = "<<solucion_rellenada_final_2.size()<<endl;
 				solucion_rellenada_final_2 = MejorCalce(solucion_rellenada_final_2,idCliente2,x_2,y_2,demanda_c2);
-				//VER SI SOLUCION_RELLENADA_FINAL_2 SE REDEFINE CADA VEZ..la idea es ir quitando los elementos incompatibles!!	
+				//cout<<"PRIMER ELEMENTO FUNCIONA ? = "<<solucion_rellenada_final_2.at(0).getId()<<endl;
+				//cout<<"POST DE = "<<solucion_rellenada_final_2.size()<<endl; 
+				//hasta est epunto todo va bien, primer elemento id= 0, contiene costo.
+				//VER SI SOLUCION_RELLENADA_FINAL_2 SE REDEFINE CADA VEZ..la idea es ir quitando los elementos incompatibles!!	(si lo hace 08:36)
 
 			}
+			//cout<<"c"<<endl;
+
 		}
 		
+		//cout<<"D"<<endl;
 
 
 		//Eliminar 2 0 concecutivos, o un 0 al final (Revision de gramatica)
 		vector<NodoCliente> s1_f = RevisionGramatica(solucion_rellenada_final_1);
+		//cout<<"E"<<endl;
+
 		vector<NodoCliente> s2_f = RevisionGramatica(solucion_rellenada_final_2);
 		
 
 
 		double costo_solucion_final_hijo1 = CostoSolucion(s1_f);
-		SetCostoSolucion(s1_f,costo_solucion_final_hijo1);
-		//cout << "SE TIENE  EN CRUZAMIENTO D= "<<s1_f.at(0).getDemanda()<<" deberia ser = "<<costo_solucion_final<<endl;
+		NodoCliente & prueba1 = s1_f.at(0);
+		prueba1.setDemanda(costo_solucion_final_hijo1);
+		//SetCostoSolucion(s1_f,costo_solucion_final_hijo1);
+		//cout<<"F"<<endl;
+
+			//cout << "SE TIENE  EN CRUZAMIENTO D= "<<s1_f.at(0).getDemanda()<<" deberia ser = "<<costo_solucion_final<<endl;
 		
 		double costo_solucion_final_hijo2 = CostoSolucion(s2_f);
-		SetCostoSolucion(s2_f,costo_solucion_final_hijo2);
+		//SetCostoSolucion(s2_f,costo_solucion_final_hijo2);
+		NodoCliente & prueba2 = s2_f.at(0);
+		prueba2.setDemanda(costo_solucion_final_hijo2);
 
 		vector<vector<NodoCliente> > resultado;
 		resultado.push_back(s1_f);
@@ -693,16 +742,23 @@ using namespace std;
 
 	vector<NodoCliente > AlgoritmoGenetico::RevisionGramatica(vector<NodoCliente> solucion){
 		int size_solucion = solucion.size();
+		vector<NodoCliente> resultado; 
 		for(int i = 0; i<size_solucion-1;i++){
-			int id_elemento_actual = solucion.at(i).getId();
+			NodoCliente nodo_actual = solucion.at(i);
+			int id_elemento_actual = nodo_actual.getId();
 			
 			int id_elemento_siguiente = solucion.at(i+1).getId();
 
-			if(id_elemento_actual == id_elemento_siguiente){ //POdria ocurrir tener 2 ocurrencias de '0'
-				solucion.erase(solucion.begin()+i);
+			if(id_elemento_actual != id_elemento_siguiente){ //POdria ocurrir tener 2 ocurrencias de '0'
+				resultado.push_back(nodo_actual);
 			}
 		}
-		return solucion;
+		NodoCliente final = solucion.at(size_solucion-1);
+		if(final.getId()!=0){
+			resultado.push_back(final);
+		}
+
+		return resultado;
 	}
 	/*
 	/////////////////////////////////////////////////////////////////////////////////////

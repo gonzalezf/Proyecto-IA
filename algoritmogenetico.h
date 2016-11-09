@@ -29,7 +29,8 @@ class AlgoritmoGenetico{
 	int ContieneElemento(vector<NodoCliente > solucion, int index, int cliente); //Retorna -1 si no encuentra el elemento, de lo contrario devuelve el indice.
 	vector<NodoCliente > MejorCalce(vector<NodoCliente > solucion, int cliente, double coordenada_x_cliente, double coordenada_y_cliente, double demanda);
 	vector<NodoCliente> UnirSoluciones(vector<NodoCliente> solucion1, vector<NodoCliente> solucion2);
-
+	vector<NodoCliente> EliminarCeros(vector<NodoCliente> solucion);
+	NodoCliente ObtenerNodoDeposito(vector<NodoCliente> solucion);
 	
 	//INICIALIZAR POBLACION
 	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName, int costo_activacion_vehiculo);
