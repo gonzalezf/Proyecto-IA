@@ -393,7 +393,7 @@ using namespace std;
 		double limite_superior = 0.0;
 		int length_poblacion = poblacion.size();
 		//Crear número aleatorio
-        double random_number =  (rand() % (101))/100.0;
+        double random_number =  (rand() % (100))/100.0;
         //cout<<"RANDOM NUMBER RULETA = "<<random_number<<endl; FUNCIONA OBTIENE CADA VEZ UN NUMERO DISTINTO.
 
 		for(int i = 0; i<length_poblacion;i++){
@@ -411,6 +411,7 @@ using namespace std;
 			}
 			limite_inferior = limite_superior;
 		}
+
 		return resultado;
 	}	
 
@@ -424,7 +425,8 @@ using namespace std;
 	vector<NodoCliente> AlgoritmoGenetico::Mutacion(vector<NodoCliente> solucion ){ //toma una ruta, de forma aleatoria cambia alguna variable
 		//Random between 2 numbers int randNum = rand()%(max-min + 1) + min;
 		
-		//cout<<"COSTO Mutacion pre "<<CostoSolucion(solucion)<<endl;
+		//cout<<"size solucion = "<<solucion.size()<<endl;
+		//LeerSolucion(solucion);
 		int solucion_length = solucion.size();
 		
 		int idPrimerElemento =0;
@@ -481,7 +483,7 @@ using namespace std;
 		deposito.setDemanda(nuevo_costo);
 
 		//cout <<"POST MUTACION  se tiene = "<<solucion.at(0).getDemanda()<<" deberia ser "<<nuevo_costo<<endl;
-
+		//cout<<"FIN MUTACION"<<endl;
 		return solucion;
 	}
 
@@ -693,7 +695,7 @@ using namespace std;
   				myfile << id_cliente_actual <<" ";
   			}
   		}
- 		myfile << "COST "<<costo<<endl;
+ 		myfile <<endl<< "COST "<<costo<<endl;
   		myfile.close();
   		return 0;
 	}

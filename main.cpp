@@ -33,7 +33,7 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 /*/////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\Definición de parametros\\\\\\\\\\\\\\\\\\\\
 ///////////////////////////////////////////////////////////////*/
-#define PXOVER 0.1 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
+#define PXOVER 0.8 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
 #define TAMANO_POBLACION 10000 
 #define NUM_ELITISMO 100 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
 #define NUM_GENERACIONES_STOP 50 // Criterio de Termino
@@ -133,23 +133,51 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
           if(num_random_operador<=PXOVER){        // REALIZAR CRUZAMIENTO
 
-/*            
+            int iteraciones = 0;
             vector<vector<NodoCliente> > soluciones_cruzadas;
-            while(!cruzamiento_factible){ //OBTENER SIEMPRE SOLUCIONES FACTIBLES! ver el costo computacional de esto
+            while(!cruzamiento_factible && (iteraciones<NUM_MAX_ITERACIONES)){ //OBTENER SIEMPRE SOLUCIONES FACTIBLES! ver el costo computacional de esto
+              iteraciones++;
+
+              //cout<<"ITERACION = "<<iteraciones<<endl;
+              //cout<<"PREVIA!!! id = "<<solucion1.at(0).getId()<<endl;;
+
               soluciones_cruzadas = AG.Cruzamiento(solucion1,solucion2); //COMPROBAR QUE EFECTIVAMENTE CRUZA y que es una solucion factible, SE PODRIA crear una funcion que descarte si resultado no es factible o que quite los 0 y comience a rellenar de nuevo
+              cout<<"OJO!!! id = "<<soluciones_cruzadas.at(0).at(0).getId()<<endl;;
+              cout<<"B"<<endl;
+
               double costo_hijo_1 = AG.EvaluarCalidad(soluciones_cruzadas.at(0),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
               double costo_hijo_2 = AG.EvaluarCalidad(soluciones_cruzadas.at(1),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
+              cout<<"C"<<endl;
+
             
               if(costo_hijo_1 != -1 && costo_hijo_2 != -1 && (costo_hijo_1 < costo_peor_solucion) && (costo_hijo_2 < costo_peor_solucion)){
                 cruzamiento_factible = true;
-                AG.SetCostoSolucion(soluciones_cruzadas.at(0),costo_hijo_1);
-                AG.SetCostoSolucion(soluciones_cruzadas.at(1),costo_hijo_2);
+                //AG.SetCostoSolucion(soluciones_cruzadas.at(0),costo_hijo_1); //OJO! SE SUPONE QUE EL PRIMER NODO ES ID = 0
+                NodoCliente & prueba1 = soluciones_cruzadas.at(0).at(0);
+                prueba1.setDemanda(costo_hijo_1);
+                //cout<<"ID DEPOSITO HIJO 1 = "<<prueba1.getId()<<endl;
+                //cout<<" COSTO ES = "<<soluciones_cruzadas.at(0).at(0).getDemanda()<<" pero es = "<<costo_hijo_1<<endl;
+                //AG.SetCostoSolucion(soluciones_cruzadas.at(1),costo_hijo_2);
+
+                NodoCliente & prueba2 = soluciones_cruzadas.at(1).at(0);
+                prueba2.setDemanda(costo_hijo_2);
+                //cout<<"ID DEPOSITO HIJO 2 = "<<prueba2.getId(); // ESTA RETORNANDO OTRA ID DEL DEPOSITO!
+                //cout<<" COSTO ES = "<<soluciones_cruzadas.at(1).at(0).getDemanda()<<" pero es = "<<costo_hijo_2<<endl;
+
+
+                cout<<"D"<<endl;
+
               }
+              cout<<"E"<<endl;
+
             }
             //Agregar hijos a la poblacion nueva que se esta generando.
+            cout<<"F"<<endl;
+
             next_poblacion.push_back(soluciones_cruzadas.at(0)); // se inserta hijo a la siguiente generacion
             next_poblacion.push_back(soluciones_cruzadas.at(1));
-*/
+            cout<<"H"<<endl;
+
             
           }
           else{ // Realiza mutacion
@@ -200,15 +228,10 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
         costo_peor_solucion = next_poblacion.at(AG.ObtenerPeorSolucion(next_poblacion)).at(0).getDemanda();
        // cout<<"Id cliente DE PEOR SOLUCION EN GENERACION = "<<next_poblacion.at(AG.ObtenerPeorSolucion(next_poblacion)).at(0).getCoordenadaX();
         //cout<<"Id cliente MEJOR SOLUCION EN GENERACION = "<<AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getCoordenadaX();
-        costo_mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getDemanda();
+        vector<NodoCliente> mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0);
+        costo_mejor_solucion = mejor_solucion.at(0).getDemanda();
         cout<<"GENERACION = "<<generacion_actual<<" SIZE "<<next_poblacion.size()<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
-        
-        //no he asegurado que el primer elemento de la solucion siempre tendra el costo de la solucion
-        /*for(int i = 0; i<next_poblacion.size();i++){
-          vector<NodoCliente> solucion = next_poblacion.at(i);
-          cout<<"Costo solucion i = "<<i<<" es igual a ="<<solucion.at(0).getDemanda()<<endl;
-        }*/
-
+        AG.EscribirMejorSolucion(mejor_solucion,costo_mejor_solucion); //Informar mejor solucion
     }
     else{
         vector<vector<NodoCliente> > ultima_generacion = AG.ObtenerMejoresSoluciones(next_poblacion,NUM_ELITISMO);
@@ -220,7 +243,9 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
           //diversificacion;
           vector<NodoCliente> solucion1 = AG.ObtenerSolucionPorRuleta(next_poblacion,costo_poblacion); //Mejorar
+          //cout<<"SIZE S1 = "<<solucion1.size()<<endl;
           vector<NodoCliente> solucion2 = AG.ObtenerSolucionPorRuleta(next_poblacion,costo_poblacion); // SOluciones iguales
+          //          cout<<"SIZE S2 = "<<solucion2.size()<<endl;
 
 
           //REALIZAR MUTACIONES Y CRUZAMIENTO EN BASE A PROBABILIDAD, AGREGAR RESULTADO A LA POBLACION INICIAL.Verificar que sea factible!!
@@ -229,7 +254,7 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
           if(num_random_operador<=PXOVER){
             // REALIZAR CRUZAMIENTO
-            /*
+            
             vector<vector<NodoCliente> > soluciones_cruzadas;
             while(!cruzamiento_factible){
               
@@ -248,13 +273,17 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
             //Agregar hijos a la poblacion nueva que se esta generando.
             ultima_generacion.push_back(soluciones_cruzadas.at(0)); // se inserta hijo a la siguiente generacion
             ultima_generacion.push_back(soluciones_cruzadas.at(1));
-            */
+            
           }
           else{
+            int iteracion = 0;
             vector<NodoCliente> solucion_mutada_1;
             vector<NodoCliente> solucion_mutada_2;
-            while(!mutacion_s1_factible){
+
+            while(!mutacion_s1_factible && (iteracion<NUM_MAX_ITERACIONES)){
+              iteracion++;
               solucion_mutada_1 = AG.Mutacion(solucion1); // Comprobar que efectivamente muta y no cambia solamente valores de una copia.
+
               double costo_mutacion_1 = AG.EvaluarCalidad(solucion_mutada_1,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
               if(costo_mutacion_1 != -1 && (costo_mutacion_1 < costo_peor_solucion)){
                 mutacion_s1_factible = true;
@@ -264,8 +293,9 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
               }
             }
-
-            while(!mutacion_s2_factible){
+            iteracion = 0; //evita bucles cuando no haya combinaciones posibles
+            while(!mutacion_s2_factible && (iteracion < NUM_MAX_ITERACIONES)){
+              iteracion++;
               solucion_mutada_2 = AG.Mutacion(solucion2);
               double costo_mutacion_2 = AG.EvaluarCalidad(solucion_mutada_1,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
               if(costo_mutacion_2 != -1 && (costo_mutacion_2 < costo_peor_solucion)){
@@ -280,9 +310,9 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
               ultima_generacion.push_back(solucion_mutada_2);              
             }
 
-          }
+          }//FIN DEL ESE
 
-        }
+        }// FIN DEL FOR
         next_poblacion.clear(); // limpiar todo de el vector
         next_poblacion = ultima_generacion; // UPDATE, VER SI FUNCIONA! ES ESCENCIAL!
 
@@ -298,6 +328,7 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
   vector<NodoCliente> mejor_solucion_encontrada = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0); //SOLO QUEREMOS LA MEJOR
   double costo_mejor_solucion_encontrada = AG.CostoSolucion(mejor_solucion_encontrada);
+  cout<<"-------------Se ha finalizado el Algoritmo ----------------------------!"<<endl;
   AG.EscribirMejorSolucion(mejor_solucion_encontrada,costo_mejor_solucion_encontrada);
   return 0;
 }
