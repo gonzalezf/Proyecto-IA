@@ -39,7 +39,7 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 #define NUM_GENERACIONES_STOP 50 // Criterio de Termino
 #define COSTO_ACTIVACION_VEHICULO 20 
 #define CANTIDAD_TRANSFORMACIONES 30
-
+#define NUM_MAX_ITERACIONES 5000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
 
 
 
@@ -102,8 +102,8 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
   vector<vector<NodoCliente> > poblacionInicial  = AG.InicializarPoblacion(TAMANO_POBLACION,path,COSTO_ACTIVACION_VEHICULO); // Se obtiene población con la cual trabajar
   vector<NodoCliente> peor_solucion_inicial = poblacionInicial.at(AG.ObtenerPeorSolucion(poblacionInicial));
   double costo_peor_solucion = peor_solucion_inicial.at(0).getDemanda();
-  double costo_mejor_solucion;
-  cout<<"COSTO PEOR SOLUCION INICIAL = "<<costo_peor_solucion<<endl;
+  double costo_mejor_solucion = AG.ObtenerMejoresSoluciones(poblacionInicial,1).at(0).at(0).getDemanda();
+  cout<<"Pob Inicial Aleatoria - "<<"Costo MS = "<<costo_mejor_solucion<<"Costo PS = "<<costo_peor_solucion<<endl;
   vector<vector<NodoCliente> > next_poblacion; // ESE ELEMENTO DEBE REDEFINIRSE VARIAS VECES, VER SI FUNCIONA, ELIMINAR TODO Y VOLVER A LLENAR
 /*
 ////////////////////////7TAREA
@@ -114,7 +114,7 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
     if(generacion_actual==0){
       //sacar mejores generaciones de poblacion inicial
         next_poblacion  = AG.ObtenerMejoresSoluciones(poblacionInicial,NUM_ELITISMO);// AGregar nuevas soluciones
-        cout<<"LENGTH NEXT_POBLACION = MEJORES SOLUCIONES DEBIESE SER 100 , PERO ES = "<<next_poblacion.size()<<endl;
+        //cout<<"LENGTH NEXT_POBLACION = MEJORES SOLUCIONES DEBIESE SER 100 , PERO ES = "<<next_poblacion.size()<<endl;
         double costo_poblacion = AG.CostoPoblacion(poblacionInicial);
         //cout << "Costo poblacion Inicial = "<<costo_poblacion<<endl;
           //SELECCIONAR 2 SOLUCIONES DE LA POBLACION ANTERIOR PARA REALIZAR TRANSFORMACION
@@ -125,11 +125,12 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
           bool cruzamiento_factible = false;
           //diversificacion;
           vector<NodoCliente> solucion1 = AG.ObtenerSolucionPorRuleta(poblacionInicial,costo_poblacion); //Mejorar
+
           vector<NodoCliente> solucion2 = AG.ObtenerSolucionPorRuleta(poblacionInicial,costo_poblacion); // SOluciones iguales
           //REALIZAR MUTACIONES Y CRUZAMIENTO EN BASE A PROBABILIDAD, AGREGAR RESULTADO A LA POBLACION INICIAL.Verificar que sea factible!!
           double num_random_operador = (rand() % 100 + 1)/100.0;     // numero entre 0.0 y 1.0 unciona, cada vez escoje uno distinto
 
-          
+
           if(num_random_operador<=PXOVER){        // REALIZAR CRUZAMIENTO
 
 /*            
@@ -153,8 +154,11 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
           }
           else{ // Realiza mutacion
              //cout<<"COSTO PREVIO MUTACION = "<<AG.CostoSolucion(solucion1)<<endl;
-
-            while(!mutacion_s1_factible){
+            //cout<<"cant next_poblacion!"<<next_poblacion.size()<<endl;
+            //cout<<"4"<<endl;
+            int iteracion = 0;
+            while(!mutacion_s1_factible && iteracion< NUM_MAX_ITERACIONES ){
+              iteracion++;
               vector <NodoCliente>  solucion_mutada_1 = AG.Mutacion(solucion1); // Comprobar que efectivamente muta y no cambia solamente valores de una copia.
               double costo_mutacion_1 = AG.EvaluarCalidad(solucion_mutada_1,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
 
@@ -168,13 +172,14 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
                  //LO DE ARRIBA SI ESTA FUNCIONANDO 3:37! 
                 if(mutacion_s1_factible){
                   next_poblacion.push_back(solucion_mutada_1);
-                  cout<<"cant next_poblacion!"<<next_poblacion.size()<<endl;
 
                 } 
               }
             }
-            //cout<<"yey2"<<endl;
-            while(!mutacion_s2_factible){
+            iteracion = 0;
+            while(!mutacion_s2_factible && iteracion < NUM_MAX_ITERACIONES){
+              //cout<<"B"<<iteracion++<<endl;
+              iteracion++;
               vector <NodoCliente>  solucion_mutada_2 = AG.Mutacion(solucion2);
               double costo_mutacion_2 = AG.EvaluarCalidad(solucion_mutada_2,tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
               if(costo_mutacion_2 != -1 && (costo_mutacion_2 < costo_peor_solucion)){
@@ -186,16 +191,23 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
                   next_poblacion.push_back(solucion_mutada_2);              
                 }
               }
-            }
-
-            
-          }          
+            }            
+          }
+          //cout<<"5"<<endl;
+          
         }
         //Aqui se tiene una nueva generacion
         costo_peor_solucion = next_poblacion.at(AG.ObtenerPeorSolucion(next_poblacion)).at(0).getDemanda();
+       // cout<<"Id cliente DE PEOR SOLUCION EN GENERACION = "<<next_poblacion.at(AG.ObtenerPeorSolucion(next_poblacion)).at(0).getCoordenadaX();
+        //cout<<"Id cliente MEJOR SOLUCION EN GENERACION = "<<AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getCoordenadaX();
         costo_mejor_solucion = AG.ObtenerMejoresSoluciones(next_poblacion,1).at(0).at(0).getDemanda();
-        cout<<"GENERACION = "<<generacion_actual<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
+        cout<<"GENERACION = "<<generacion_actual<<" SIZE "<<next_poblacion.size()<<" Costo Mejor Solucion = "<<costo_mejor_solucion<<"Costo Peor Solucion = "<<costo_peor_solucion<<endl;
+        
         //no he asegurado que el primer elemento de la solucion siempre tendra el costo de la solucion
+        /*for(int i = 0; i<next_poblacion.size();i++){
+          vector<NodoCliente> solucion = next_poblacion.at(i);
+          cout<<"Costo solucion i = "<<i<<" es igual a ="<<solucion.at(0).getDemanda()<<endl;
+        }*/
 
     }
     else{

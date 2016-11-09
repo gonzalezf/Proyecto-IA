@@ -177,8 +177,6 @@ using namespace std;
     	else{
     		cout << "Imposible leer archivo" <<endl<<endl;
     	} 
-		//cout << "Finalizó InicializarPoblacion "<<endl;
-    	cout<<"FIN InicializarPoblacion"<<endl;
    		return conjuntoRutas;
 	}
 
@@ -241,15 +239,18 @@ using namespace std;
 	*/
 	//devuelve el indice de donde esta la peor solucion
 	int AlgoritmoGenetico::ObtenerPeorSolucion(vector<vector<NodoCliente> > poblacion){
+		
 		double costo_global = 0;
 		int length_poblacion = poblacion.size();
 		int index = -1; // error
 		for(int i = 0; i<length_poblacion;i++){
-			vector<NodoCliente> solucion_actual = poblacion.at(0);
+			vector<NodoCliente> solucion_actual = poblacion.at(i);
 			NodoCliente nodo_actual = solucion_actual.at(0);
 			double costo_actual = nodo_actual.getDemanda();
+			//cout<<"index = "<<i<<" costo global = "<<costo_global<<" costo actual = "<<costo_actual<<endl;
 
 			if(costo_actual > costo_global){
+				//cout<<"UPDATE PEOR SOLUCION !"<<endl;
 				index = i;
 				costo_global = costo_actual; //update
 			}
