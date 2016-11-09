@@ -33,10 +33,10 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 /*/////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\Definición de parametros\\\\\\\\\\\\\\\\\\\\
 ///////////////////////////////////////////////////////////////*/
-#define PXOVER 0.8 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
+#define PXOVER 0.1 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
 #define TAMANO_POBLACION 10000 
 #define NUM_ELITISMO 100 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
-#define NUM_GENERACIONES_STOP 50 // Criterio de Termino
+#define NUM_GENERACIONES_STOP 150 // Criterio de Termino
 #define COSTO_ACTIVACION_VEHICULO 20 
 #define CANTIDAD_TRANSFORMACIONES 30
 #define NUM_MAX_ITERACIONES 5000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
@@ -134,6 +134,8 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
           if(num_random_operador<=PXOVER){        // REALIZAR CRUZAMIENTO
 
             int iteraciones = 0;
+            /*
+
             vector<vector<NodoCliente> > soluciones_cruzadas;
             while(!cruzamiento_factible && (iteraciones<NUM_MAX_ITERACIONES)){ //OBTENER SIEMPRE SOLUCIONES FACTIBLES! ver el costo computacional de esto
               iteraciones++;
@@ -150,7 +152,11 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
               vector<NodoCliente> hijo_1_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(0));
               vector<NodoCliente> hijo_2_pre_final = AG.EliminarCeros(soluciones_cruzadas.at(1));
 
+              //cout << "hijo 1 pre final "<< hijo_1_pre_final.size()<<endl;
+
               vector<NodoCliente> hijo_1_final = AG.CrearRutasFactibles(hijo_1_pre_final,nodo_deposito_hijo_1,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
+              //cout << "hijo 1 final "<< hijo_1_final.size()<<endl;
+
               vector<NodoCliente> hijo_2_final = AG.CrearRutasFactibles(hijo_2_pre_final,nodo_deposito_hijo_2,capacidad_vehiculos_instancia,tiempo_max_ruta_instancia,tiempo_servicio_instancia);
 
 
@@ -177,10 +183,11 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
                 next_poblacion.push_back(hijo_1_final); // se inserta hijo a la siguiente generacion
                 next_poblacion.push_back(hijo_2_final);
-                cout<<"HIJOS INGRESADOS A LA POB"<<endl;
+                //cout<<"HIJOS INGRESADOS A LA POB"<<endl;
               }
               //cout<<"E"<<endl;
             }            
+            */
           }
           else{ // Realiza mutacion
              //cout<<"COSTO PREVIO MUTACION = "<<AG.CostoSolucion(solucion1)<<endl;
@@ -254,12 +261,15 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
           double num_random_operador = (rand() % 100 + 1)/100.0;     // este numero determina si se cruza o no
 
-          if(num_random_operador<=PXOVER){
+          if(num_random_operador<=PXOVER){ 
             // REALIZAR CRUZAMIENTO
+
             int iteraciones = 0;
+            /*
             vector<vector<NodoCliente> > soluciones_cruzadas;
             while(!cruzamiento_factible && (iteraciones < NUM_MAX_ITERACIONES)){
               iteraciones++;
+
 
               soluciones_cruzadas = AG.Cruzamiento(solucion1,solucion2); //COMPROBAR QUE EFECTIVAMENTE CRUZA y que es una solucion factible, SE PODRIA crear una funcion que descarte si resultado no es factible o que quite los 0 y comience a rellenar de nuevo
               NodoCliente nodo_deposito_hijo_1 = AG.ObtenerNodoDeposito(soluciones_cruzadas.at(0));
@@ -287,13 +297,15 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
                             //Agregar hijos a la poblacion nueva que se esta generando.
                 ultima_generacion.push_back(hijo_1_final); // se inserta hijo a la siguiente generacion
                 ultima_generacion.push_back(hijo_2_final);
-                cout<<"INGRESA HIJOS A POBLACION"<<endl;
+                //cout<<"INGRESA HIJOS A POBLACION"<<endl;
                 //cout <<"COMPROBACION CAMBIO SET COSTO CRUZAMIENTO, demanda = "<<soluciones_cruzadas.at(0).at(0).getDemanda()<<" costo_hijo_1 "<<costo_hijo_1<<endl;
+                
               }
+            
             }
 
 
-            
+            */
           }
           else{
             int iteracion = 0;

@@ -124,6 +124,7 @@ using namespace std;
       			{
       			istringstream iss(line); //ver si esto funciona
       			if(num_linea == 0){
+      				//cout<<"YAYYYY"<<endl;
       				iss >> num_clientes >> capacidad_vehiculos >> tiempo_max_ruta >> tiempo_servicio; //parsear primera linea
       				//cout << "tiempo max  " << tiempo_max_ruta << "tiempo_servicio" << tiempo_servicio << endl;
 
@@ -140,11 +141,13 @@ using namespace std;
       				iss >> posicion_cliente_actual.first >> posicion_cliente_actual.second >> demanda_cliente_actual; // se obtiene elemento
       				//Una vez parseado llevar estos elementos a un struct
       				NodoCliente nodoActual(idCLiente,posicion_cliente_actual.first,posicion_cliente_actual.second,demanda_cliente_actual);
-		    		//cout << "ID = " << nodoActual.getId() << "X =" << nodoActual.getCoordenadaX() << "Y = " << nodoActual.getCoordenadaY() << " D = " << nodoActual.getDemanda() << endl; 
+		    		if(nodoActual.getDemanda()!=0){
+			    		//cout << "linea = "<<num_linea<<"ID = " << nodoActual.getId() << "X =" << nodoActual.getCoordenadaX() << "Y = " << nodoActual.getCoordenadaY() << " D = " << nodoActual.getDemanda() << endl; 
+	      				clientesInstancia.push_back(nodoActual); //insertar elemento dentro de ese vector
+	      				idCLiente++;
 
-      				clientesInstancia.push_back(nodoActual); //insertar elemento dentro de ese vector
+		    		}
       				//cout << "size = " << clientesInstancia.size() << endl;
-      				idCLiente++;
       			}
 		      	num_linea++;
 		      	}
@@ -384,11 +387,11 @@ using namespace std;
 				tiempo_ruta_actual+= DistanciaEuclidiana(x_actual,y_actual,x_siguiente,y_siguiente);
 			}
 			if(tiempo_ruta_actual> tiempo_max_ruta){
-				cout<<"EXCEDIDO TIEMPO RUTA , ACTUAL = "<<tiempo_ruta_actual<<" T MAX = "<<tiempo_max_ruta<<endl;
+				//cout<<"EXCEDIDO TIEMPO RUTA , ACTUAL = "<<tiempo_ruta_actual<<" T MAX = "<<tiempo_max_ruta<<endl;
 				return -1;
 			}
 			if(cantidad_almacenada > capacidad_vehiculos){
-				cout<<"EXCEDIDO CANTIDAD ALMACENADA, ACTUAL ="<<cantidad_almacenada<<" C MAX = "<<capacidad_vehiculos<<endl;
+				//cout<<"EXCEDIDO CANTIDAD ALMACENADA, ACTUAL ="<<cantidad_almacenada<<" C MAX = "<<capacidad_vehiculos<<endl;
 				return -1;
 			}
 			/*
