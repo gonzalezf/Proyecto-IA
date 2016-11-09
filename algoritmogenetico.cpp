@@ -133,7 +133,6 @@ using namespace std;
       				iss >> posicionDeposito.first >> posicionDeposito.second;
       				nodoDeposito.setPosicion(posicionDeposito.first,posicionDeposito.second);
       				//cout << "X = " << nodoDeposito.getCoordenadaX() << "Y = " << nodoDeposito.getCoordenadaY() << endl;
-
       			}
       			else{
       				// parseamos y obtenemos el elemento cliente (su numero y su posicion)
@@ -569,7 +568,7 @@ using namespace std;
 		//Los valores que se intercambian, si no aparecen en la nueva solucion, uno x uno se colocan en el mejor ajuste
 		//cout<<"LLEGA ID S1 = "<<solucion1.at(0).getId();// funciona
 		//cout<<"LLEGA ID S2 = "<<solucion2.at(0).getId();
-
+		//RECIBE 50 CLIENTES POR SOLUCION, CHECK 15:52 PM
 		int length_solucion1 = solucion1.size();
 		int length_solucion2 = solucion2.size();
 		int punto_corte = int(min(length_solucion1,length_solucion2)/2) -1; // ahora tenemos un nuevo indice, hasta este valor incluyendolo se intercambian mitades
@@ -589,12 +588,17 @@ using namespace std;
 
 		vector<NodoCliente> solucion_rellenada_pre_final_2 = RellenarMitad(nuevasolucion2,solucion2,punto_corte+1,length_solucion2-1); //copiar mitad restante
 		vector<NodoCliente> solucion_rellenada_pre_final_1 = RellenarMitad(nuevasolucion1,solucion1,punto_corte+1,length_solucion1-1); 
+		
+
 		//cout<<"LLEGA ID S1 = "<<nuevasolucion1_rellenada_mitad.at(0).getId()<<endl;// 
 		//cout<<"LLEGA ID S2 = "<<nuevasolucion2_rellenada_mitad.at(0).getId()<<endl; // funciona 07:10 
 		
 
 		vector<NodoCliente> solucion_rellenada_final_1 = UnirSoluciones(nuevasolucion1_rellenada_mitad,solucion_rellenada_pre_final_1);
 		vector<NodoCliente> solucion_rellenada_final_2 = UnirSoluciones(nuevasolucion2_rellenada_mitad,solucion_rellenada_pre_final_2);
+		//cout<<"S1 A = "<<length_solucion1<<" D = "<<solucion_rellenada_final_1.size()<<" S2 A = "<<length_solucion2<<" D = "<<solucion_rellenada_final_2.size()<<endl;
+		//MANTIENE TAMAÑO SOLUCIONES CORRESPONDIENTES, CHECK 15:53
+
 		/*FUNCIONA, SUMA CORRECTAMENTE
 		cout<<"x "<<nuevasolucion1_rellenada_mitad.size()<<" y "<<solucion_rellenada_pre_final_1.size()<<" z "<<solucion_rellenada_final_1.size()<<endl;
 		cout<<"x "<<nuevasolucion2_rellenada_mitad.size()<<" y "<<solucion_rellenada_pre_final_2.size()<<" z "<<solucion_rellenada_final_2.size()<<endl;
@@ -604,70 +608,108 @@ using namespace std;
 
 		vector<NodoCliente>  s2;
 		vector<NodoCliente> s1;
+
 		//Por cada elemento que este en la primera mitad, eliminarlo de la segunda y calzarlo donde mejor calce.
-		for(int i = 0; i<punto_corte+1;i++){ //incluyendo el punto de corte
+		int cantidad_borrados = 0;
+		//cout<<"x "<<nuevasolucion1_rellenada_mitad.size()<<" y "<<solucion_rellenada_pre_final_1.size()<<" z "<<solucion_rellenada_final_1.size()<<endl;
+
+		for(int i = 0; i<punto_corte+1;i++){ //incluyendo el punto de corte // ELIMINAR REPETIDOS EN LA SEGUNDA MITAD
 			//cout<<"A"<<endl;
-			int idCliente1 = solucion_rellenada_final_1.at(i).getId();
+			int idCliente1 = solucion_rellenada_final_1.at(i).getId(); //ANALIZAR ID DE PRIMERA MITAD!
 			int idCliente2 = solucion_rellenada_final_2.at(i).getId();
-			if(i==0){
-				//cout<<" ID 1 = "<<idCliente1<< " ID 2 = "<<idCliente2<<endl;
-			}
-
-			double x_1 = solucion_rellenada_final_1.at(i).getCoordenadaX();
-			double y_1 = solucion_rellenada_final_1.at(i).getCoordenadaY();
-
-			double x_2 = solucion_rellenada_final_2.at(i).getCoordenadaX();
-			double y_2 = solucion_rellenada_final_2.at(i).getCoordenadaY();
-
-			double demanda_c1 = solucion_rellenada_final_1.at(i).getDemanda();
-			double demanda_c2 = solucion_rellenada_final_2.at(i).getDemanda();
-
+			
+			//ELIMINAR VALORES REPETIDOS, EN LA SEGUNDA MITAD
 			int resultado1 = ContieneElemento(solucion_rellenada_final_1,punto_corte+1,idCliente1); //Esta retornando siempre -1
 			int resultado2 = ContieneElemento(solucion_rellenada_final_2,punto_corte+1,idCliente2);
+			//volver a ingresar valores que desaparecieron
+
+
+
 			//cout<<"RESULTADOS!! = R1  = "<<resultado1<< "R2 = "<<resultado2<<endl;
 			//cout<<"B"<<endl;
-
-			//Aqui hay algo malo, por cada elemento meh
-
 			if(resultado1 != -1 && idCliente1 !=0){ // significa que contiene el elemento, quitar de la pila. No se eliminan 0 
+				//COMPROBAR QUE EFECTIVAMENTE BORRA REPETIDO. funciona 16:43 pm
+				//cout<<" i = "<<i<<" ID = "<<idCliente1<<" id repetido = "<<solucion_rellenada_final_1.at(resultado1).getId()<<endl;
 				solucion_rellenada_final_1.erase(solucion_rellenada_final_1.begin() + resultado1); // removido del vector
 				//cout<<"id cliente1 ="<<idCliente1<<" size s1 rellenada "<<solucion_rellenada_final_1.size()<<endl;	
-
-				solucion_rellenada_final_1 = MejorCalce(solucion_rellenada_final_1,idCliente1,x_1,y_1,demanda_c1);
+				//ESO ESTA MAL, SE DEBE BUSCAR SI EL ELEMENTO DE LA PRIMERA MITAD ANTERIOR NO ESTABA, CALZARLO
+				cantidad_borrados+=1;
 			}
+
 			if(resultado2 != -1 && idCliente2 != 0){ // significa que contiene el elemento, quitar de la pila y 
 				solucion_rellenada_final_2.erase(solucion_rellenada_final_2.begin() + resultado2); // removido del vector
-				//cout<<"ANTES DE = "<<solucion_rellenada_final_2.size()<<endl;
-				solucion_rellenada_final_2 = MejorCalce(solucion_rellenada_final_2,idCliente2,x_2,y_2,demanda_c2);
-				//cout<<"PRIMER ELEMENTO FUNCIONA ? = "<<solucion_rellenada_final_2.at(0).getId()<<endl;
-				//cout<<"POST DE = "<<solucion_rellenada_final_2.size()<<endl; 
-				//hasta est epunto todo va bien, primer elemento id= 0, contiene costo.
-				//VER SI SOLUCION_RELLENADA_FINAL_2 SE REDEFINE CADA VEZ..la idea es ir quitando los elementos incompatibles!!	(si lo hace 08:36)
-
 			}
-			//cout<<"c"<<endl;
-
+			
 		}
+
+		//cout<<"CANTIDAD BORRADOS S1 = "<<cantidad_borrados<<" TAMANO ACTUAL = "<<solucion_rellenada_final_1.size()<<endl;
+		//cout<<"SOLUCION PREVIO AGREGACION, NO DEBERIAN EXISTIR REPLICAS!!!"<<endl;
+		//LeerSolucion(solucion_rellenada_final_1); // no existen replicas
+
+
+		int cantidad_agregada= 0;
+		vector<NodoCliente> solucion_agregada_1 = solucion_rellenada_final_1;
+		vector<NodoCliente> solucion_agregada_2 = solucion_rellenada_final_2; // ver si definen.
+		for(int j= 0; j<punto_corte+1;j++){ // agregar soluciones que faltan
+
+			int idCliente1 = solucion_rellenada_final_1.at(j).getId(); //ANALIZAR ID DE PRIMERA MITAD!
+			int idCliente2 = solucion_rellenada_final_2.at(j).getId();
+			
+
+			double x_1 = solucion_rellenada_final_1.at(j).getCoordenadaX();
+			double y_1 = solucion_rellenada_final_1.at(j).getCoordenadaY();
+
+			double x_2 = solucion_rellenada_final_2.at(j).getCoordenadaX();
+			double y_2 = solucion_rellenada_final_2.at(j).getCoordenadaY();
+
+			double demanda_c1 = solucion_rellenada_final_1.at(j).getDemanda();
+			double demanda_c2 = solucion_rellenada_final_2.at(j).getDemanda();
+
+
+			int resultado3 = ContieneElemento(solucion_agregada_1,punto_corte+1,idCliente2);
+			int resultado4 = ContieneElemento(solucion_agregada_2,punto_corte+1,idCliente1);
+
+
 		
-		//cout<<"D"<<endl;
+			if(resultado3 == -1 && idCliente2 != 0){ // agregar cliente
+				cantidad_agregada+=1;
+				//cout<<"I = "<<j<<"AGREGADO = "<<idCliente2<<endl;
+				solucion_agregada_1 = MejorCalce(solucion_agregada_1,idCliente2,x_2,y_2,demanda_c2);
+				//cout<<"I = "<<j<<"AGREGADO = "<<idCliente2<<" size = "<<solucion_agregada_1.size()<<endl;
 
+				//volver a ingresar valor que se habia perdido
+			}
 
+			if(resultado4 == -1 && idCliente1 != 0){
+				solucion_agregada_2 = MejorCalce(solucion_agregada_2,idCliente1,x_1,y_1,demanda_c1);
+			}
+		}
+		//cout<<"CANTIDAD AGREGADA = "<<cantidad_agregada<< "tamano solucion = "<<solucion_agregada_1.size()<<endl;
+		//REVISAR SI PRIMER NODO DE SOLUCION AGREGADA SIGUE SIENDO ID = 0;
+		//cout<<"REVISION ID = "<<solucion_agregada_1.at(0).getId()<<endl;
+
+		//cout<<"A size = "<<solucion_agregada_1.size()<<endl;
+		vector<NodoCliente> solucion_sin_repeticiones_1 = EliminarRepetidos(solucion_agregada_1);
+		//cout<<"B size = "<<solucion_sin_repeticiones_1.size()<<endl;
+
+		vector<NodoCliente> solucion_sin_repeticiones_2 = EliminarRepetidos(solucion_agregada_2);
+		//cout<<"C"<<endl;
+
+		solucion_agregada_1 = solucion_sin_repeticiones_1;
+		solucion_agregada_2 = solucion_sin_repeticiones_2;
+
+		//cout<<"QUE PASAAAAAAAA CLIENTES = "<<EliminarCeros(solucion_agregada_1).size()<<endl;
+		//LeerSolucion(solucion_agregada_1); // ELIMINAR REPETIDOS!
 		//Eliminar 2 0 concecutivos, o un 0 al final (Revision de gramatica)
-		vector<NodoCliente> s1_f = RevisionGramatica(solucion_rellenada_final_1);
-		//cout<<"E"<<endl;
-
-		vector<NodoCliente> s2_f = RevisionGramatica(solucion_rellenada_final_2);
+		vector<NodoCliente> s1_f = RevisionGramatica(solucion_agregada_1);
+		vector<NodoCliente> s2_f = RevisionGramatica(solucion_agregada_2);
 		
 
 
 		double costo_solucion_final_hijo1 = CostoSolucion(s1_f);
 		NodoCliente & prueba1 = s1_f.at(0);
 		prueba1.setDemanda(costo_solucion_final_hijo1);
-		//SetCostoSolucion(s1_f,costo_solucion_final_hijo1);
-		//cout<<"F"<<endl;
 
-			//cout << "SE TIENE  EN CRUZAMIENTO D= "<<s1_f.at(0).getDemanda()<<" deberia ser = "<<costo_solucion_final<<endl;
-		
 		double costo_solucion_final_hijo2 = CostoSolucion(s2_f);
 		//SetCostoSolucion(s2_f,costo_solucion_final_hijo2);
 		NodoCliente & prueba2 = s2_f.at(0);
@@ -676,8 +718,38 @@ using namespace std;
 		vector<vector<NodoCliente> > resultado;
 		resultado.push_back(s1_f);
 		resultado.push_back(s2_f);
-		//cout << "CrossOver terminado"<<endl; #qui
 		return resultado; // arreglo de dos elementos, hay dos nuevas soluciones!
+	}
+
+	vector<NodoCliente> AlgoritmoGenetico::EliminarRepetidos(vector<NodoCliente> solucion){
+		vector<NodoCliente> resultado;
+		int length_solucion = solucion.size();
+		for(int i = 0; i <length_solucion;i++){
+			NodoCliente nodo_actual = solucion.at(i);
+			int id_actual = nodo_actual.getId();
+			if(id_actual==0){
+				resultado.push_back(nodo_actual);
+			}
+			else{
+				int z = 0;
+				for(int j = i+1; j<length_solucion;j++){
+					//cout<<"j = "<<j<<" i = "<<i<<endl;
+					NodoCliente nodo_comparacion = solucion.at(j);
+					int id_nodo_comparacion = nodo_comparacion.getId();
+					//cout<<"ACTUAL = "<<id_actual<<" C = "<<id_nodo_comparacion<<endl;
+					if(id_actual == id_nodo_comparacion){
+						//cout<<"yay!"<<endl;
+						z = 1; // no agregar, esta repetido.
+					}
+				}
+				if(z==0){
+					//cout<<"AGREGADO NODO ID = "<<nodo_actual.getId()<<endl;
+					resultado.push_back(nodo_actual);
+				}
+			}
+
+		}
+		return resultado;
 	}
 
 

@@ -31,7 +31,7 @@ class AlgoritmoGenetico{
 	vector<NodoCliente> UnirSoluciones(vector<NodoCliente> solucion1, vector<NodoCliente> solucion2);
 	vector<NodoCliente> EliminarCeros(vector<NodoCliente> solucion);
 	NodoCliente ObtenerNodoDeposito(vector<NodoCliente> solucion);
-	
+	vector<NodoCliente> EliminarRepetidos(vector<NodoCliente> solucion);
 	//INICIALIZAR POBLACION
 	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName, int costo_activacion_vehiculo);
 	vector<NodoCliente> CrearRutasFactibles(vector<NodoCliente> clientesInstancia,NodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio);
