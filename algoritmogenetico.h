@@ -17,6 +17,7 @@ class AlgoritmoGenetico{
 	public:
 
 	//SET DE HERRAMIENTAS
+	vector<int> GetDatosInstancia( const std::string&  path);
 	double DistanciaEuclidiana(double p1x,double p1y, double p2x,double p2y);
     void LeerSolucion(vector<NodoCliente> solucion);
     void LeerPoblacion(vector<vector<NodoCliente> > poblacion);
@@ -30,13 +31,13 @@ class AlgoritmoGenetico{
 
 	
 	//INICIALIZAR POBLACION
-	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName);
+	vector<vector<NodoCliente> > InicializarPoblacion(int tamano_poblacion, const std::string& fileName, int costo_activacion_vehiculo);
 	vector<NodoCliente> CrearRutasFactibles(vector<NodoCliente> clientesInstancia,NodoCliente nodoDeposito,int capacidad_vehiculos,int tiempo_max_ruta,int tiempo_servicio);
 
 	//ETILISMO
 	vector<vector<NodoCliente> > ObtenerMejoresSoluciones(vector<vector<NodoCliente> > poblacion, int k);
- 	vector<NodoCliente> EncontrarMejorSolucion(vector<vector<NodoCliente> >  poblacion, int tiempo_servicio);
-	double EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio);
+	vector<NodoCliente>EncontrarMejorSolucion(vector<vector<NodoCliente> > poblacion, int tiempo_servicio, int capacidad_vehiculos, int tiempo_max_ruta, int costo_activacion_vehiculo); // No la estoy ocupando
+	double EvaluarCalidad(vector<NodoCliente> solucion, int tiempo_servicio, int capacidad_vehiculos, int tiempo_max_ruta, int costo_activacion_vehiculo);
 	int ObtenerPeorSolucion(vector<vector<NodoCliente> > poblacion); //devuelve el index de donde esta la peor solucion de una poblacion;
 
 	//SELECCION
