@@ -502,41 +502,77 @@ using namespace std;
 	}
 
 
+	//Revisado, check 08:08
 	int AlgoritmoGenetico::ContieneElemento(vector<NodoCliente > solucion, int index, int cliente){
 		int length_solucion = solucion.size();
-		for(int i = index; i<length_solucion;i++){
-			if(solucion.at(i).getId() == cliente){
-				return i; //return el index donde se encuentra
+		//cout<<"PARAMEROS index = "<<index<<" cliente = "<<cliente<<" size = "<<length_solucion<<endl;
+		for(int z = index; z<length_solucion;z++){
+			//cout<<"I = "<<z<<" ID NODO = "<<solucion.at(z).getId()<<"CLIENTE BUSCADO = "<<cliente<<endl;
+			if(solucion.at(z).getId() == cliente){
+				return z; //return el index donde se encuentra
 			}
 		}
 		return -1; //no existe el elemento, no fue encontrado.
 	}
 
+	vector<NodoCliente> AlgoritmoGenetico::UnirSoluciones(vector<NodoCliente> solucion1, vector<NodoCliente> solucion2){
+		vector<NodoCliente> resultado;
+		int length_solucion1 = solucion1.size();
+		int length_solucion2 = solucion2.size();
+		for(int i = 0; i<length_solucion1;i++){
+			resultado.push_back(solucion1.at(i));
+		}
+		for(int j = 0; j<length_solucion2;j++){
+			resultado.push_back(solucion2.at(j));
+		}
+		return resultado;
 
+	}
 	//Entrega 2 hijos! a partir de 2 padres
 	vector<vector<NodoCliente> > AlgoritmoGenetico::Cruzamiento(vector<NodoCliente > solucion1,vector<NodoCliente > solucion2){
 		//Cada mitad desde el inicio al punto de corte se intercambian
 		//Los valores que se intercambian, si estan en la segunda mitad de donde llegan se eliminan de ahi
 		//Los valores que se intercambian, si no aparecen en la nueva solucion, uno x uno se colocan en el mejor ajuste
+		//cout<<"LLEGA ID S1 = "<<solucion1.at(0).getId();// funciona
+		//cout<<"LLEGA ID S2 = "<<solucion2.at(0).getId();
+
 		int length_solucion1 = solucion1.size();
 		int length_solucion2 = solucion2.size();
 		int punto_corte = int(min(length_solucion1,length_solucion2)/2) -1; // ahora tenemos un nuevo indice, hasta este valor incluyendolo se intercambian mitades
 
 		 
 
-		vector<NodoCliente> nuevasolucion1;
-		vector<NodoCliente> nuevasolucion2;
-
+		vector<NodoCliente>  nuevasolucion1;
+		vector<NodoCliente>  nuevasolucion2;
 		vector<NodoCliente> nuevasolucion1_rellenada_mitad = RellenarMitad(nuevasolucion1, solucion2,0,punto_corte); //Intercambiar hasta el punto de corte.
 		vector<NodoCliente> nuevasolucion2_rellenada_mitad =RellenarMitad(nuevasolucion2,solucion1,0,punto_corte); 
+		//cout<<"LLEGA ID S1 = "<<nuevasolucion1_rellenada_mitad.at(0).getId();// funciona
+		//cout<<"LLEGA ID S2 = "<<nuevasolucion2_rellenada_mitad.at(0).getId(); // funciona! 7:05
+
+		cout<<"LARGO  nvs1 rellenada mitad === "<<nuevasolucion1_rellenada_mitad.size()<<endl;
 		//revisar si los indices que recibe rellenar mitad son correctos!
-		vector<NodoCliente> solucion_rellenada_final_2 = RellenarMitad(nuevasolucion2,solucion2,punto_corte+1,length_solucion2-1); //copiar mitad restante
-		vector<NodoCliente> solucion_rellenada_final_1 = RellenarMitad(nuevasolucion1,solucion1,punto_corte+1,length_solucion1-1); 
+
+
+		vector<NodoCliente> solucion_rellenada_pre_final_2 = RellenarMitad(nuevasolucion2,solucion2,punto_corte+1,length_solucion2-1); //copiar mitad restante
+		vector<NodoCliente> solucion_rellenada_pre_final_1 = RellenarMitad(nuevasolucion1,solucion1,punto_corte+1,length_solucion1-1); 
+		//cout<<"LLEGA ID S1 = "<<nuevasolucion1_rellenada_mitad.at(0).getId()<<endl;// 
+		//cout<<"LLEGA ID S2 = "<<nuevasolucion2_rellenada_mitad.at(0).getId()<<endl; // funciona 07:10 
+		
+
+		vector<NodoCliente> solucion_rellenada_final_1 = UnirSoluciones(nuevasolucion1_rellenada_mitad,solucion_rellenada_pre_final_1);
+		vector<NodoCliente> solucion_rellenada_final_2 = UnirSoluciones(nuevasolucion2_rellenada_mitad,solucion_rellenada_pre_final_2);
+		
+		cout<<"LARGO 2 ojala que si al "<<solucion_rellenada_final_1.size()<<endl;
+
+		cout<<"LARGO 2 solucion rellenada final "<<solucion_rellenada_final_2.size()<<endl;
+
+
 
 		vector<NodoCliente>  s2;
 		vector<NodoCliente> s1;
 		//Por cada elemento que este en la primera mitad, eliminarlo de la segunda y calzarlo donde mejor calce.
-		for(int i = 0; i<punto_corte+1;i++){
+		for(int i = 0; i<punto_corte+1;i++){ //incluyendo el punto de corte
+
 			int idCliente1 = solucion_rellenada_final_1.at(i).getId();
 			int idCliente2 = solucion_rellenada_final_2.at(i).getId();
 
@@ -550,13 +586,15 @@ using namespace std;
 			double demanda_c1 = solucion_rellenada_final_1.at(i).getDemanda();
 			double demanda_c2 = solucion_rellenada_final_2.at(i).getDemanda();
 
-			int resultado1 = ContieneElemento(solucion_rellenada_final_1,punto_corte+1,idCliente1);
+			int resultado1 = ContieneElemento(solucion_rellenada_final_1,punto_corte+1,idCliente1); //Esta retornando siempre -1
 			int resultado2 = ContieneElemento(solucion_rellenada_final_2,punto_corte+1,idCliente2);
+			//cout<<"RESULTADOS!! = R1  = "<<resultado1<< "R2 = "<<resultado2<<endl;
+
 			//Aqui hay algo malo, por cada elemento meh
 
 			if(resultado1 != -1 && idCliente1 !=0){ // significa que contiene el elemento, quitar de la pila. No se eliminan 0 
 				solucion_rellenada_final_1.erase(solucion_rellenada_final_1.begin() + resultado1); // removido del vector
-				
+				cout<<"id cliente1 ="<<idCliente1<<" size s1 rellenada "<<solucion_rellenada_final_1.size()<<endl;	
 
 				solucion_rellenada_final_1 = MejorCalce(solucion_rellenada_final_1,idCliente1,x_1,y_1,demanda_c1);
 			}
@@ -588,8 +626,8 @@ using namespace std;
 		resultado.push_back(s2_f);
 		//cout << "CrossOver terminado"<<endl; #qui
 		return resultado; // arreglo de dos elementos, hay dos nuevas soluciones!
-
 	}
+
 
 	vector<NodoCliente > AlgoritmoGenetico::MejorCalce(vector<NodoCliente > solucion, int cliente, double coordenada_x_cliente, double coordenada_y_cliente, double demanda){
 		double costo_global = MAX_DOUBLE;

@@ -143,11 +143,10 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
 
               soluciones_cruzadas = AG.Cruzamiento(solucion1,solucion2); //COMPROBAR QUE EFECTIVAMENTE CRUZA y que es una solucion factible, SE PODRIA crear una funcion que descarte si resultado no es factible o que quite los 0 y comience a rellenar de nuevo
               cout<<"OJO!!! id = "<<soluciones_cruzadas.at(0).at(0).getId()<<endl;;
-              cout<<"B"<<endl;
 
               double costo_hijo_1 = AG.EvaluarCalidad(soluciones_cruzadas.at(0),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO); 
               double costo_hijo_2 = AG.EvaluarCalidad(soluciones_cruzadas.at(1),tiempo_servicio_instancia, capacidad_vehiculos_instancia, tiempo_max_ruta_instancia, COSTO_ACTIVACION_VEHICULO);  
-              cout<<"C"<<endl;
+              //cout<<"C"<<endl;
 
             
               if(costo_hijo_1 != -1 && costo_hijo_2 != -1 && (costo_hijo_1 < costo_peor_solucion) && (costo_hijo_2 < costo_peor_solucion)){
@@ -165,18 +164,18 @@ int tiempo_max_ruta_instancia = datos_instancia.at(1);
                 //cout<<" COSTO ES = "<<soluciones_cruzadas.at(1).at(0).getDemanda()<<" pero es = "<<costo_hijo_2<<endl;
 
 
-                cout<<"D"<<endl;
+                //cout<<"D"<<endl;
 
               }
-              cout<<"E"<<endl;
+              //cout<<"E"<<endl;
 
             }
             //Agregar hijos a la poblacion nueva que se esta generando.
-            cout<<"F"<<endl;
+            //cout<<"F"<<endl;
 
             next_poblacion.push_back(soluciones_cruzadas.at(0)); // se inserta hijo a la siguiente generacion
             next_poblacion.push_back(soluciones_cruzadas.at(1));
-            cout<<"H"<<endl;
+            //cout<<"H"<<endl;
 
             
           }
