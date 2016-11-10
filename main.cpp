@@ -39,10 +39,10 @@ g++ -Wall main.cpp helper.cpp algoritmogenetico.cpp nodocliente.cpp
 #define PXOVER 0.8 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
 #define TAMANO_POBLACION 100000 
 #define NUM_ELITISMO 100 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
-#define NUM_GENERACIONES_STOP 25 // Criterio de Termino
+#define NUM_GENERACIONES_STOP 50 // Criterio de Termino
 #define COSTO_ACTIVACION_VEHICULO 20 
-#define CANTIDAD_TRANSFORMACIONES 30
-#define NUM_MAX_ITERACIONES 2000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
+#define CANTIDAD_TRANSFORMACIONES 50
+#define NUM_MAX_ITERACIONES 3000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
 
 
 
