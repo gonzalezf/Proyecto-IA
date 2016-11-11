@@ -16,12 +16,12 @@ using namespace std;
 /*/////////////////////////////////////////////////////////////
 //\\\\\\\\\\\\\\\\\Definición de parametros\\\\\\\\\\\\\\\\\\\\
 ///////////////////////////////////////////////////////////////*/
-#define PXOVER 0.1 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
+#define PXOVER 0.8 //Porcentaje crossover  - Mutación sera (1 - PXOVER)
 #define TAMANO_POBLACION 100000 
-#define NUM_ELITISMO 100 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
-#define NUM_GENERACIONES_STOP 20 // Criterio de Termino
+#define NUM_ELITISMO 1000 // cantidad de "mejores soluciones que se seleccionan de una poblacion "
+#define NUM_GENERACIONES_STOP 15 // Criterio de Termino
 #define COSTO_ACTIVACION_VEHICULO 20 
-#define CANTIDAD_TRANSFORMACIONES 20
+#define CANTIDAD_TRANSFORMACIONES 30
 #define NUM_MAX_ITERACIONES 2000 // EN mutacion busca continuamente por posibles soluciones, a veces no existen mas. Esto nos saca del bucle
 
 
