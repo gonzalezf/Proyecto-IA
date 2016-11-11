@@ -48,17 +48,9 @@ class AlgoritmoGenetico{
 	//TRANSFORMACION
 	vector<NodoCliente> Mutacion(vector<NodoCliente> solucion );//toma una ruta, de forma aleatoria cambia alguna variable
 	vector<vector<NodoCliente> > Cruzamiento(vector<NodoCliente > solucion1,vector<NodoCliente > solucion2);
+	vector<NodoCliente> Mutacion2(vector<NodoCliente> solucion ); //toma una ruta, de forma aleatoria cambia alguna variable
 
-	//INFORMAR MEJOR SOLUCION
 	int EscribirMejorSolucion(vector<NodoCliente > solucion,double costo);
-
-	//UNA VEZ MUTADO HAY QUE REASIGNAR EL COSTO Y VER SI SON FACTIBLES!
-
-/*
-	int EscribirMejorSolucion(vector<pair<int,pair<double,double> > > solucion,int costo);
-*/
-
-	//OTROS
 
 
 
