@@ -25,7 +25,7 @@ El parámetro INSTANCE es obligatorio y hace referencia a una instancia que exis
 ./instances/{instancia}.txt
 
 A modo de ejemplo, para probar el algoritmo con la instancia "vrpnc1.txt", se debe 
-ingresar en linea de comando:
+ingresr en linea de comando:
 
 make INSTANCE=vrpnc1
 
